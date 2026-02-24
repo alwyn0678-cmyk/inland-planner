@@ -157,13 +157,22 @@ body{font-family:var(--ff);background:var(--s2);color:var(--ink);min-height:100v
 /* recommended badge */
 .bc-recommended{border-color:var(--gbd);}
 .bc-rec-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);background:var(--gb);border:1px solid var(--gbd);padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
+/* holiday warning */
+.bc-holiday-warn{display:flex;align-items:flex-start;gap:5px;margin-top:6px;font-family:var(--fm);font-size:10px;color:#7c5400;background:#fff8e1;border:1px solid #f9a825;padding:4px 8px;border-radius:3px;line-height:1.4;}
 /* next-day cutoff note */
 .bc-cutoff-note{display:flex;align-items:center;gap:5px;margin-top:6px;font-family:var(--fm);font-size:10px;color:var(--blue);background:var(--bl);border:1px solid var(--bm);padding:3px 8px;border-radius:3px;}
 /* skipped banner */
 .bc-skipped{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:8px;background:var(--s3);border:1px solid var(--bd2);border-left:4px solid var(--mu);border-radius:var(--r);font-family:var(--fm);font-size:11px;color:var(--mu);line-height:1.5;}
+/* no schedule ISR */
+.no-sched-isr{padding:20px 24px;background:#fff8e1;border:1px solid #f9a825;border-left:4px solid #f9a825;border-radius:var(--r);font-size:13px;color:#7c5400;line-height:1.7;}
+.no-sched-isr strong{font-weight:600;}
 /* no schedule */
 .no-sched{padding:24px;text-align:center;background:var(--s3);border:1px solid var(--bd);border-radius:var(--r);font-family:var(--fm);font-size:12px;color:var(--mu);}
 
+/* copy button */
+.copy-btn{margin-top:10px;font-family:var(--fm);font-size:11px;padding:5px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);color:var(--ink3);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.copy-btn:hover{background:var(--bl);border-color:var(--blue);color:var(--blue);}
+.copy-btn.copied{background:var(--gb);border-color:var(--gbd);color:var(--grn);}
 /* ref table toggle */
 .refsec{margin-top:32px;}
 .reftog{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;user-select:none;transition:background .12s;}
@@ -568,7 +577,9 @@ footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;g
 <footer>
   <div class="fi">Maersk DE Inland Ops</div><span class="fsep">·</span>
   <div class="fi">Booking Planner <span class="fv">+</span> Planning Spec</div>
-  <span class="fsep">·</span><div class="fi">Internal only · Feb 2026</div>
+  <span class="fsep">·</span><div class="fi">Internal only</div>
+  <span class="fsep">·</span><div class="fi">Schedules valid as of <span class="fv">Feb 2026</span></div>
+  <span class="fsep">·</span><div class="fi">v<span class="fv">1.2</span></div>
 </footer>
 
 <script>
@@ -607,6 +618,30 @@ function jsDay(d){return d.getDay()===0?7:d.getDay();}// 1=Mon…6=Sat,7=Sun
 // ══ Schedule data ═════════════════════════════════════
 // transit = max days (last arrival day). CCO boundary = ETD + transit + 2.
 // ETD boundary = CCO_boundary + YOT.
+// ══ Public holidays (DE / NL / BE) ══════════════════════
+const HOLIDAYS=new Set([
+  // 2025
+  '2025-01-01','2025-04-18','2025-04-21','2025-05-01','2025-05-29',
+  '2025-06-09','2025-10-03','2025-11-01','2025-12-25','2025-12-26',
+  // 2026
+  '2026-01-01','2026-04-03','2026-04-06','2026-05-01','2026-05-14',
+  '2026-05-25','2026-10-03','2026-11-01','2026-12-25','2026-12-26',
+  // 2027
+  '2027-01-01','2027-03-26','2027-03-29','2027-05-01','2027-05-06',
+  '2027-05-17','2027-10-03','2027-11-01','2027-12-25','2027-12-26',
+]);
+function toISO(d){return d.toISOString().slice(0,10);}
+function holidaysInRange(start,end){
+  // returns array of holiday dates (Date objects) between start and end inclusive
+  const hits=[];
+  const cur=new Date(start);
+  while(cur<=end){
+    if(HOLIDAYS.has(toISO(cur)))hits.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+  return hits;
+}
+
 // transit = days from ETD to last arrival day (conservative)
 // buffer: 1 = arrival is a range (range already adds ~1d variance), 2 = single arrival day
 // dep: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat 7=Sun
@@ -732,6 +767,10 @@ function bargeCard(dep,yot,termCode){
     ?`<div class="bc-rec-badge">✓ Recommended</div>`:'';
   const cutoffNote=dep.nextDayCutoff
     ?`<div class="bc-cutoff-note">⏰ Load before 12:00 to make this departure</div>`:'';
+  // Holiday check: scan ETD through EAT for public holidays
+  const hols=holidaysInRange(dep.etd,dep.eat);
+  const holHtml=hols.length
+    ?`<div class="bc-holiday-warn">⚠ Public holiday in transit window: ${hols.map(h=>fmtS(h)).join(', ')} — verify with depot</div>`:'';
   return`<div class="bc${dep.isRecommended?' bc-recommended':''}">
     <div class="bc-accent ${dep.mod.toLowerCase()}"></div>
     <div class="bc-body">
@@ -741,6 +780,7 @@ function bargeCard(dep,yot,termCode){
         <div class="bc-dep-year">${dep.etd.getFullYear()}</div>
         ${recBadge}
         ${cutoffNote}
+        ${holHtml}
       </div>
       <div class="bc-win">
         <div class="bc-win-hdr">VESSEL PLANNING WINDOW</div>
@@ -757,6 +797,7 @@ function bargeCard(dep,yot,termCode){
             <div class="win-item-sub">${latestETA.getFullYear()}</div>
           </div>
         </div>
+        <button class="copy-btn" onclick="copyWindow(this,'${fmtS(ccoMin)} ${ccoMin.getFullYear()}','${fmtS(latestETA)} ${latestETA.getFullYear()}')">⎘ Copy</button>
       </div>
     </div>
   </div>`;
@@ -1021,7 +1062,11 @@ function selectDepot(code){
       const modIcon=s.mod==='Rail'?'🚂':'🛳';
       skipNotice=`<div class="bc-skipped">${modIcon} <strong>${s.mod} on ${fmtS(s.etd)}</strong> was skipped — loading after 12:00 does not allow enough time to make this departure.</div>`;
     }
-    bargeList.innerHTML=skipNotice+`<div class="no-sched">No further departures available for <strong>${code}</strong> → ${portLabel} within the planning window. Contact the inland coordination team.</div>`;
+    const noSchedDepots=['DEMUN01','DENUE02','DETREAZ','DEDUI03'];
+    const noSchedMsg=noSchedDepots.includes(code)
+      ?`<div class="no-sched-isr">📋 Schedule not yet available for <strong>${D[code]||code}</strong>.<br>Please raise an ISR for loading possibilities.</div>`
+      :`<div class="no-sched">No further departures available for <strong>${code}</strong> → ${portLabel} within the planning window. Contact the inland coordination team.</div>`;
+    bargeList.innerHTML=skipNotice+noSchedMsg;
   } else {
     // Mark the first result as recommended
     deps[0].isRecommended=true;
@@ -1085,6 +1130,23 @@ function buildRefTable(){
   }).join('');
   tbl.innerHTML=head+`<tbody>${rows}</tbody>`;
   document.getElementById('ruleCount').textContent=`${RULES.length} rules`;
+}
+
+// ══ Copy planning window ═════════════════════════════
+function copyWindow(btn,cco,eta){
+  const text=`Vessel Planning Window\nEarliest CCO: ${cco}\nLatest ETA:   ${eta}`;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='⎘ Copy';btn.classList.remove('copied');},2000);
+  }).catch(()=>{
+    // fallback for non-https
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✓ Copied';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='⎘ Copy';btn.classList.remove('copied');},2000);
+  });
 }
 
 // ══ Init ══════════════════════════════════════════════
