@@ -757,7 +757,7 @@ function getNextDeps(code,port,loadingDate,loadTimeStr,n=2){
 }
 
 // ══ Render barge card ════════════════════════════════
-function bargeCard(dep,yot,termCode){
+function bargeCard(dep,yot,termCode,ctx){
   const modIcon=dep.mod==='Rail'?'🚂':'🛳';
   // CCO: EAT + buffer (buffer days ensure container physically makes cut-off)
   const ccoMin=addDays(dep.eat,dep.buffer||2);
@@ -797,7 +797,14 @@ function bargeCard(dep,yot,termCode){
             <div class="win-item-sub">${latestETA.getFullYear()}</div>
           </div>
         </div>
-        <button class="copy-btn" onclick="copyWindow(this,'${fmtS(ccoMin)} ${ccoMin.getFullYear()}','${fmtS(latestETA)} ${latestETA.getFullYear()}')">⎘ Copy</button>
+        <button class="copy-btn" onclick="copyBooking(this,${JSON.stringify({
+          zip:ctx.zip,container:ctx.container,
+          loadDate:ctx.loadDate,loadTime:ctx.loadTime,
+          depot:ctx.depotCode,depotName:ctx.depotName,
+          modality:dep.mod,etd:'${fmt(dep.etd)}',
+          terminal:ctx.termCode,termName:ctx.termName,
+          cco:'${fmt(ccoMin)}',eta:'${fmt(latestETA)}'
+        }).replace(/'/g,"\\'")})">⎘ Copy Booking Summary</button>
       </div>
     </div>
   </div>`;
@@ -816,6 +823,14 @@ const D={
   'DEGRH01':'Germersheim DPW',
   'DEMUN01':'Muenchen',
   'DENUE02':'Nuernberg CDN',
+};
+const TERM_NAMES={
+  'NLROTTM':'APM Terminals Rotterdam',
+  'NLROTWG':'Rotterdam World Gateway',
+  'NLROT01':'Hutchison Ports Delta II',
+  'NLROT21':'ECT Delta Terminal',
+  'BEANT869':'PSA Europa Terminal',
+  'BEANT913':'PSA Noordzee Terminal',
 };
 const RULES=[
   // 32000–34999 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
@@ -1077,7 +1092,16 @@ function selectDepot(code){
       const modIcon=s.mod==='Rail'?'🚂':'🛳';
       skipNotice=`<div class="bc-skipped">${modIcon} <strong>${s.mod} on ${fmtS(s.etd)}</strong> skipped — loading after 12:00 is too late. Next available option recommended below.</div>`;
     }
-    bargeList.innerHTML=skipNotice+deps.map(d=>bargeCard(d,yot,termCode)).join('');
+    const termName=TERM_NAMES[termCode]||termCode;
+    const depotName=D[code]||code;
+    const zip2=document.getElementById('zipInput').value;
+    const sz=document.getElementById('sizeSelect').value;
+    const tp=document.getElementById('typeSelect').value;
+    const ld=document.getElementById('loadDate').value;
+    const lt=document.getElementById('loadTime').value;
+    const ctx={zip:zip2,container:`${sz}' ${tp.charAt(0).toUpperCase()+tp.slice(1)}`,
+      loadDate:ld,loadTime:lt,depotCode:code,depotName,termCode,termName};
+    bargeList.innerHTML=skipNotice+deps.map(d=>bargeCard(d,yot,termCode,ctx)).join('');
   }
   // Smooth scroll to schedule
   setTimeout(()=>bargeTitle.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
@@ -1132,20 +1156,38 @@ function buildRefTable(){
   document.getElementById('ruleCount').textContent=`${RULES.length} rules`;
 }
 
-// ══ Copy planning window ═════════════════════════════
-function copyWindow(btn,cco,eta){
-  const text=`Vessel Planning Window\nEarliest CCO: ${cco}\nLatest ETA:   ${eta}`;
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent='✓ Copied';
-    btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='⎘ Copy';btn.classList.remove('copied');},2000);
-  }).catch(()=>{
-    // fallback for non-https
+// ══ Copy full booking summary ════════════════════════
+function copyBooking(btn,d){
+  const divider='─────────────────────────────────';
+  const text=[
+    'MAERSK DE — INLAND BOOKING SUMMARY',
+    divider,
+    `Customer ZIP (PLZ)  : ${d.zip}`,
+    `Container           : ${d.container}`,
+    `Loading Date        : ${d.loadDate.split('-').reverse().join('/')}`,
+    `Loading Time (CET)  : ${d.loadTime}`,
+    divider,
+    'INLAND TRANSPORT',
+    `Depot               : ${d.depot} — ${d.depotName}`,
+    `Modality            : ${d.modality}`,
+    `Departure (ETD)     : ${d.etd}`,
+    divider,
+    'VESSEL PLANNING WINDOW',
+    `Terminal            : ${d.terminal} — ${d.termName}`,
+    `Earliest Vessel CCO : ${d.cco}`,
+    `Latest Vessel ETA   : ${d.eta}`,
+    divider,
+    `Generated           : ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} · Maersk DE Inland Ops v1.2`,
+  ].join('\n');
+  const doCopy=()=>{
+    btn.innerHTML='✓ Copied';btn.classList.add('copied');
+    setTimeout(()=>{btn.innerHTML='⎘ Copy Booking Summary';btn.classList.remove('copied');},2500);
+  };
+  navigator.clipboard.writeText(text).then(doCopy).catch(()=>{
     const ta=document.createElement('textarea');
     ta.value=text;document.body.appendChild(ta);ta.select();
     document.execCommand('copy');document.body.removeChild(ta);
-    btn.textContent='✓ Copied';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='⎘ Copy';btn.classList.remove('copied');},2000);
+    doCopy();
   });
 }
 
