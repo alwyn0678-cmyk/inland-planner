@@ -91,9 +91,7 @@ body{font-family:var(--ff);background:var(--s2);color:var(--ink);min-height:100v
 .rcl:hover{color:var(--red);border-color:var(--rbd);}
 
 /* ISR */
-.isra{background:#fff5f5;border:1px solid var(--rbd);border-left:4px solid var(--red);border-radius:var(--r);padding:10px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;}
-.israt{font-size:13px;color:#7f1d1d;line-height:1.5;}
-.israt strong{font-weight:600;}
+
 
 /* depot rack */
 .depot-rack{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
@@ -146,6 +144,15 @@ body{font-family:var(--ff);background:var(--s2);color:var(--ink);min-height:100v
 .win-item-date.etd{color:var(--grn);}
 .win-item-sub{font-family:var(--fm);font-size:10px;color:var(--mu);margin-top:3px;}
 
+/* customs deadline banner */
+.customs-banner{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;margin-bottom:20px;background:#fff8e1;border:1px solid #f9a825;border-left:5px solid #f9a825;border-radius:var(--r);}
+.customs-banner-icon{font-size:20px;flex-shrink:0;line-height:1.2;}
+.customs-banner-body{flex:1;}
+.customs-banner-ttl{font-family:var(--fc);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7c5400;margin-bottom:3px;}
+.customs-banner-val{font-family:var(--fc);font-size:22px;font-weight:700;color:#7c5400;line-height:1.1;}
+.customs-banner-sub{font-family:var(--fm);font-size:10px;color:#a0700a;margin-top:3px;}
+/* DEDUIRR banner */
+.deduirr-banner{display:flex;align-items:center;gap:10px;padding:11px 16px;margin-bottom:16px;background:var(--rb);border:1px solid var(--rbd);border-left:5px solid var(--red);border-radius:var(--r);font-family:var(--fc);font-size:15px;font-weight:700;color:var(--red);letter-spacing:.02em;}
 /* recommended badge */
 .bc-recommended{border-color:var(--gbd);}
 .bc-rec-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);background:var(--gb);border:1px solid var(--gbd);padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
@@ -350,15 +357,19 @@ footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;g
         <button class="rcl" onclick="clearResult()">✕ New search</button>
       </div>
 
-      <!-- ISR alert -->
-      <div id="isrAlert" class="isra" style="display:none">
-        <span style="font-size:16px;flex-shrink:0">⚠️</span>
-        <div class="israt"><strong>ISR Required for 3rd Option depot.</strong> Raise an Inland Service Request and get sign-off from your supervisor before confirming with the customer.</div>
-      </div>
-
       <!-- Depot options -->
       <div class="section-ttl">Depot Options <span style="font-family:var(--fm);font-size:10px;color:var(--mu);font-weight:400;text-transform:none;letter-spacing:0">— click a depot to see its schedule</span></div>
       <div class="depot-rack" id="depotRack"></div>
+
+      <!-- Customs deadline banner -->
+      <div class="customs-banner" id="customsBanner" style="display:none">
+        <div class="customs-banner-icon">⚠️</div>
+        <div class="customs-banner-body">
+          <div class="customs-banner-ttl">Customs Documentation Deadline</div>
+          <div class="customs-banner-val" id="customsDeadlineVal">—</div>
+          <div class="customs-banner-sub">All customs documents must be submitted before this time · Loading date/time + 3 hours</div>
+        </div>
+      </div>
 
       <!-- Barge options -->
       <div class="section-ttl" id="bargeTitle" style="display:none"></div>
@@ -481,18 +492,28 @@ footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;g
         <div class="crow"><span class="cpill ph">HC-3</span><div><div class="ctx2">Barge ETD must be on or after the customer loading date</div><div class="cco2">→ Cannot catch a departure that has already left</div></div></div>
         <h3 style="margin-top:14px">Soft warnings (shown to CX)</h3>
         <div class="crow"><span class="cpill ps">SC-1</span><div><div class="ctx2">Loading date = barge ETD (same-day departure)</div><div class="cco2">→ CX must confirm loading cut-off time with the depot</div></div></div>
-        <div class="crow"><span class="cpill ps">SC-2</span><div><div class="ctx2">Depot is 3rd option</div><div class="cco2">→ ISR required — must be raised and approved before booking</div></div></div>
+        <div class="crow"><span class="cpill ps">SC-2</span><div><div class="ctx2">Depot DEDUIRR selected</div><div class="cco2">→ Banner shown: "Please Raise an ISR for booking possibilities." Schedules not displayed.</div></div></div>
       </div></div>
 
       <div class="psec" id="s7"><div class="psh" onclick="toggleSec('s7')"><span class="psn">07</span><span class="pst">Output Design</span><span class="psc">▼</span></div>
       <div class="pbdy">
-        <p>The tool shows one card per available barge/rail departure. Each card shows only what CX needs to act:</p>
-        <div class="ptw"><table class="pt"><tr><th>What CX sees</th><th>Example</th><th>Why</th></tr>
-          <tr><td><strong>Barge ETD</strong></td><td>🛳 Barge · Tue 25 Feb</td><td>Which departure to plan the container onto</td></tr>
-          <tr><td><strong>Vessel CCO on or after</strong></td><td>Thu 05 Mar 2026</td><td>Terminal arrival date — container must make the vessel cut-off</td></tr>
-          <tr><td><strong>Vessel ETA no later than</strong></td><td>Mon 09 Mar 2026</td><td>EAT + (YOT−1), inclusive. Vessel must arrive within the YOT window so yard is open on container arrival.</td></tr>
+        <h3>User flow</h3>
+        <p>CX enters load details → selects loading date/time → system immediately shows the <strong>customs documentation deadline banner</strong> (loading time + 3 hours) → then shows exactly <strong>2 schedule options</strong>. If depot DEDUIRR is selected, the ISR banner is shown instead of schedules.</p>
+        <h3>1 — Customs Documentation Deadline Banner</h3>
+        <p>Displayed <strong>first</strong>, above all schedule options, immediately when a loading date/time is entered. Formula: <strong>Deadline = Loading datetime + 3 hours</strong>. CX must see and act on this before looking at any sailing options.</p>
+        <div class="ptw"><table class="pt"><tr><th>Field</th><th>Example</th><th>Rule</th></tr>
+          <tr><td><strong>Customs deadline</strong></td><td>Thu 05 Mar 2026 · 11:00 CET</td><td>Loading date 05/03 at 08:00 + 3h = 11:00</td></tr>
         </table></div>
-        <p>Transit days, buffer calculations, and Planning ETA are <strong>not shown to CX</strong> — these are internal inputs to the two output dates only.</p>
+        <h3>2 — Schedule Options (max 2)</h3>
+        <p>After the customs banner, the tool shows exactly <strong>two</strong> feasible inland departures — the recommended earliest option and the next available. No third option is shown.</p>
+        <div class="ptw"><table class="pt"><tr><th>What CX sees</th><th>Example</th><th>Why</th></tr>
+          <tr><td><strong>Barge/Rail ETD</strong></td><td>🛳 Barge · Mon 02 Mar</td><td>Which departure to plan the container onto</td></tr>
+          <tr><td><strong>Vessel CCO on or after</strong></td><td>Fri 06 Mar 2026</td><td>EAT + buffer — container must make cut-off</td></tr>
+          <tr><td><strong>Vessel ETA no later than</strong></td><td>Mon 09 Mar 2026</td><td>EAT + (YOT−1), inclusive. Yard must be open on arrival.</td></tr>
+        </table></div>
+        <h3>3 — DEDUIRR Depot Banner</h3>
+        <p>When depot DEDUIRR is selected, schedules are replaced with: <strong>"Please Raise an ISR for booking possibilities"</strong>. No other instruction text is shown.</p>
+        <p>Internal calculations (transit days, EAT, buffer) are <strong>never shown to CX</strong>.</p>
       </div></div>
 
       <div class="psec" id="s8"><div class="psh" onclick="toggleSec('s8')"><span class="psn">08</span><span class="pst">Edge Cases</span><span class="psc">▼</span></div>
@@ -503,6 +524,8 @@ footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;g
           <tr><td class="cid">EC-3</td><td>ZIP not covered</td><td>"Postcode not in matrix. Contact inland team."</td></tr>
           <tr><td class="cid">EC-4</td><td>Depot has no schedule (München, Nürnberg, Trier)</td><td>"Schedule not available for this depot. Contact inland team."</td></tr>
           <tr><td class="cid">EC-5</td><td>Terminal not selected before clicking Plan</td><td>Prompt: "Please select a terminal."</td></tr>
+          <tr><td class="cid">EC-6</td><td>DEDUIRR depot selected</td><td>Show ISR banner. No schedule cards displayed.</td></tr>
+          <tr><td class="cid">EC-7</td><td>Loading time pushes customs deadline past midnight</td><td>Deadline date rolls to next calendar day, shown correctly (e.g. 23:00 + 3h = 02:00 next day).</td></tr>
         </table></div>
       </div></div>
 
@@ -513,6 +536,8 @@ footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;g
         <li>All calculations use <strong>calendar days</strong> — weekends and public holidays are not excluded.</li>
         <li>Same-day departures are <strong>flagged but included</strong> — CX must call the depot to confirm.</li>
         <li>Schedules are shown for <strong>any clicked depot</strong>. The preferred depot (rank 1) is auto-selected on load.</li>
+        <li>A maximum of <strong>2 schedule options</strong> are shown per depot/port — the earliest feasible and the next available.</li>
+        <li>The <strong>customs documentation deadline</strong> (loading datetime + 3h) is always shown first, before any schedule options.</li>
         <li>Tool is <strong>advisory only</strong>. It does not create bookings in any system.</li>
       </ul></div></div>
 
@@ -658,7 +683,7 @@ const SCHED={
   },
 };
 
-function getNextDeps(code,port,loadingDate,loadTimeStr,n=3){
+function getNextDeps(code,port,loadingDate,loadTimeStr,n=2){
   const sch=(SCHED[code]||{})[port];
   if(!sch||!sch.length)return{deps:[],skipped:[]};
   // Parse loading hour for next-day cutoff rule
@@ -908,16 +933,12 @@ function doLookup(){
   // No rule
   if(!rule){
     document.getElementById('depotRack').innerHTML=`<div style="padding:18px 20px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);font-family:var(--fm);font-size:12px;color:var(--mu)">🚫 Postcode <strong>${zip}</strong> is not in the depot matrix. Contact the inland coordination team.</div>`;
-    document.getElementById('isrAlert').style.display='none';
     document.getElementById('bargeTitle').style.display='none';
     document.getElementById('bargeList').innerHTML='';
     hlRow(null);return;
   }
 
-  // ISR alert
   const opts=port==='RTM'?rule.rtm:rule.anr||rule.rtm;
-  document.getElementById('isrAlert').style.display=
-    (rule.isrOnP3&&(opts.p3||false))?'flex':'none';
 
   // Depot pills — clickable
   function makePill(code,rank,isrR,isMulti,multiTxt){
@@ -939,6 +960,20 @@ function doLookup(){
   document.getElementById('depotRack').innerHTML=dp;
   hlRow(rule.id);
 
+  // Customs deadline = loading date + time + 3 hours
+  const loadTimeStr2=document.getElementById('loadTime').value||'08:00';
+  const [lh2,lm2]=loadTimeStr2.split(':').map(Number);
+  const deadlineDate=new Date(loadingDate);
+  deadlineDate.setHours(lh2,lm2+180,0,0); // +180 min = +3h
+  const dDay=DN[deadlineDate.getDay()];
+  const dDate=deadlineDate.getDate();
+  const dMon=MN[deadlineDate.getMonth()];
+  const dYr=deadlineDate.getFullYear();
+  const dHH=String(deadlineDate.getHours()).padStart(2,'0');
+  const dMM=String(deadlineDate.getMinutes()).padStart(2,'0');
+  document.getElementById('customsDeadlineVal').textContent=`${dDay} ${dDate} ${dMon} ${dYr} · ${dHH}:${dMM} CET`;
+  document.getElementById('customsBanner').style.display=port==='RTM'?'flex':'none';
+
   // Auto-select preferred depot
   document.getElementById('bargeTitle').style.display='none';
   document.getElementById('bargeList').innerHTML='';
@@ -951,23 +986,28 @@ function selectDepot(code){
   const termVal=document.getElementById('terminalSelect').value;
   const loadDate=document.getElementById('loadDate').value;
   if(!termVal||!loadDate)return;
+  // DEDUIRR — show ISR banner and stop
+  const bargeList=document.getElementById('bargeList');
+  const bargeTitle=document.getElementById('bargeTitle');
+  document.querySelectorAll('.depot-pill[data-depot]').forEach(p=>{
+    p.classList.toggle('selected',p.dataset.depot===code);
+  });
+  if(code==='DEDUIRR'){
+    bargeTitle.style.display='none';
+    bargeList.innerHTML=`<div class="deduirr-banner">⛔ Please Raise an ISR for booking possibilities</div>`;
+    return;
+  }
   const[termCode,yotStr,port]=termVal.split('|');
   const yot=parseInt(yotStr,10);
   const loadingDate=parseDate(loadDate);
 
-  // Highlight selected pill
-  document.querySelectorAll('.depot-pill[data-depot]').forEach(p=>{
-    p.classList.toggle('selected', p.dataset.depot===code);
-  });
+  // (pill already highlighted above)
 
   const name=D[code]||code;
   const portLabel=port==='RTM'?'Rotterdam':'Antwerp';
   const loadTimeStr=document.getElementById('loadTime').value||'08:00';
   const result=getNextDeps(code,port,loadingDate,loadTimeStr);
   const {deps,skipped}=result||{deps:[],skipped:[]};
-  const bargeTitle=document.getElementById('bargeTitle');
-  const bargeList=document.getElementById('bargeList');
-
   bargeTitle.style.display='block';
   bargeTitle.textContent=`${name} — Departures & Vessel Booking Window`;
 
@@ -1003,6 +1043,9 @@ function clearResult(){
   document.getElementById('zipInput').value='';
   document.getElementById('terminalSelect').value='';
   document.getElementById('loadDate').value='';
+  document.getElementById('customsBanner').style.display='none';
+  document.getElementById('bargeTitle').style.display='none';
+  document.getElementById('bargeList').innerHTML='';
   hlRow(null);
 }
 
