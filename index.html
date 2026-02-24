@@ -737,32 +737,136 @@ function bargeCard(dep,yot,termCode){
 
 // ══ ZIP / depot data ═════════════════════════════════
 const D={
-  'DEDUI01':'Hutchison Ports Duisburg','DEDUI03':'DIT Depot Duisburg',
-  'DEBNX01':'Bonn AZS','DETREAZ':'Trier AZS',
-  'DEAJHRA':'Rheinhafen Andernach','DEAJHRAHS':'Andernach H&S',
-  'DEG4TG':'Gustavsburg Contargo','DEMNZ01':'Mainz Frankenbach',
-  'DEGRH01':'Germersheim DPW','DEMHG02':'Contargo Mannheim',
-  'DEMUN01':'München Terminal','DENUE02':'Nürnberg CDN',
+  'DEDUI01':'Hutchison Ports Duisburg',
+  'DEDUI03':'DIT Depot Duisburg',
+  'DEDUIRR':'RRT Depot Duisburg',
+  'DEBNX01':'Bonn AZS',
+  'DETREAZ':'Trier AZS',
+  'DEAJHRA':'Rheinhafen Andernach',
+  'DEG4TG':'Gustavsburg Contargo',
+  'DEMNZ01':'Mainz Frankenbach',
+  'DEGRH01':'Germersheim DPW',
+  'DEMUN01':'Muenchen',
+  'DENUE02':'Nuernberg CDN',
 };
 const RULES=[
-  {id:'r01',zipLabel:'32000–34999 / 40000–52999 / 57000–60000',ranges:[[32000,34999],[40000,52999],[57000,60000]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEDUI01',p2:'DEDUI03'},anr:{p1:'DEDUI01'},isrOnP3:false},
-  {id:'r02',zipLabel:'53000–53999',ranges:[[53000,53999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEDUI01',p2:'DEBNX01'},anr:{p1:'DEBNX01'},isrOnP3:false},
-  {id:'r03',zipLabel:'54000–54999',ranges:[[54000,54999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DETREAZ',p2txt:'DEAJHRA / DEBNX01'},anr:{p1:'DETREAZ'},isrOnP3:false},
-  {id:'r04',zipLabel:"35000–36999 / 56000–56999 (20')",ranges:[[35000,36999],[56000,56999]],sizes:['20'],types:['dry'],rtm:{p1:'DEAJHRA',p2:'DEBNX01'},anr:{p1:'DEAJHRAHS',p2:'DEBNX01'},isrOnP3:false},
-  {id:'r05',zipLabel:"35000–36999 / 56000–56999 (40')",ranges:[[35000,36999],[56000,56999]],sizes:['40'],types:['dry','high'],rtm:{p1:'DEBNX01',p2:'DEAJHRA'},anr:{p1:'DEBNX01',p2:'DEAJHRA'},isrOnP3:false},
-  {id:'r06',zipLabel:"55000–55999 / 60000–65999 (20')",ranges:[[55000,55999],[60000,65999]],sizes:['20'],types:['dry'],rtm:{p1:'DEG4TG',p2:'DEAJHRA',p3:'DEMHG02'},anr:{p1:'DEG4TG',p2:'DEAJHRA',p3:'DEMHG02'},isrOnP3:false},
-  {id:'r07',zipLabel:"55000–55999 / 60000–65999 (40')",ranges:[[55000,55999],[60000,65999]],sizes:['40'],types:['dry','high','href'],rtm:{p1:'DEMNZ01',p2:'DEAJHRA',p3:'DEMHG02'},anr:{p1:'DEMNZ01',p2:'DEAJHRA',p3:'DEMHG02'},isrOnP3:false},
-  {id:'r08',zipLabel:'66000–79999 / 88000–89999',ranges:[[66000,79999],[88000,89999]],sizes:['20','40'],types:['dry','high','href'],rtm:{p1:'DEGRH01',p2:'DEMHG02'},anr:{p1:'DEGRH01',p2:'DEMHG02'},isrOnP3:false},
-  {id:'r09',zipLabel:'80000–87999',ranges:[[80000,87999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEMUN01'},anr:{p1:'DEMUN01'},isrOnP3:false},
-  {id:'r10',zipLabel:'90000–99000',ranges:[[90000,99000]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DENUE02'},anr:{p1:'DENUE02'},isrOnP3:false},
+  // 32000–34999 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
+  {id:'r01',zipLabel:'32000–34999',ranges:[[32000,34999]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
+   anr:{p1:'DEDUI01'},isrOnP3:true},
+
+  // 35000–36999 — 40 dry/high
+  {id:'r02a',zipLabel:"35000–36999 (40')",ranges:[[35000,36999]],
+   sizes:['40'],types:['dry','high'],
+   rtm:{p1:'DEMNZ01',p2:'DEG4TG'},
+   anr:{p1:'DEMNZ01',p2:'DEG4TG'},isrOnP3:false},
+
+  // 35000–36999 — 20 dry
+  {id:'r02b',zipLabel:"35000–36999 (20')",ranges:[[35000,36999]],
+   sizes:['20'],types:['dry'],
+   rtm:{p1:'DEAJHRA',p2:'DEBNX01'},
+   anr:{p1:'DEAJHRA',p2:'DEBNX01'},isrOnP3:false},
+
+  // 37000–52999 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
+  {id:'r03',zipLabel:'37000–52999',ranges:[[37000,52999]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
+   anr:{p1:'DEDUI01'},isrOnP3:true},
+
+  // 53000–53999 — 20/40 dry/high
+  {id:'r04',zipLabel:'53000–53999',ranges:[[53000,53999]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DEDUI01',p2:'DEBNX01'},
+   anr:{p1:'DEBNX01'},isrOnP3:false},
+
+  // 54000–54999 — 20/40 dry/high
+  {id:'r05',zipLabel:'54000–54999',ranges:[[54000,54999]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DETREAZ',p2:'DEAJHRA',p3:'DEBNX01'},
+   anr:{p1:'DETREAZ'},isrOnP3:false},
+
+  // 55000–55999 — 40 dry/high/href
+  {id:'r06a',zipLabel:"55000–55999 (40')",ranges:[[55000,55999]],
+   sizes:['40'],types:['dry','high','href'],
+   rtm:{p1:'DEMNZ01'},
+   anr:{p1:'DEMNZ01'},isrOnP3:false},
+
+  // 55000–55999 — 20 dry
+  {id:'r06b',zipLabel:"55000–55999 (20')",ranges:[[55000,55999]],
+   sizes:['20'],types:['dry'],
+   rtm:{p1:'DEG4TG',p2:'DEAJHRA'},
+   anr:{p1:'DEG4TG',p2:'DEAJHRA'},isrOnP3:false},
+
+  // 56000–56999 — 40 dry/high
+  {id:'r07a',zipLabel:"56000–56999 (40')",ranges:[[56000,56999]],
+   sizes:['40'],types:['dry','high'],
+   rtm:{p1:'DEBNX01'},
+   anr:{p1:'DEBNX01'},isrOnP3:false},
+
+  // 56000–56999 — 20 dry
+  {id:'r07b',zipLabel:"56000–56999 (20')",ranges:[[56000,56999]],
+   sizes:['20'],types:['dry'],
+   rtm:{p1:'DEAJHRA',p2:'DEBNX01'},
+   anr:{p1:'DEAJHRA',p2:'DEBNX01'},isrOnP3:false},
+
+  // 57000–60000 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
+  {id:'r08',zipLabel:'57000–60000',ranges:[[57000,60000]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
+   anr:{p1:'DEDUI01'},isrOnP3:true},
+
+  // 60001–65999 — 40 dry/high/href
+  {id:'r09a',zipLabel:"60001–65999 (40')",ranges:[[60001,65999]],
+   sizes:['40'],types:['dry','high','href'],
+   rtm:{p1:'DEMNZ01'},
+   anr:{p1:'DEMNZ01'},isrOnP3:false},
+
+  // 60001–65999 — 20 dry
+  {id:'r09b',zipLabel:"60001–65999 (20')",ranges:[[60001,65999]],
+   sizes:['20'],types:['dry'],
+   rtm:{p1:'DEG4TG',p2:'DEAJHRA'},
+   anr:{p1:'DEG4TG',p2:'DEAJHRA'},isrOnP3:false},
+
+  // 66000–79999 — 20/40 dry/high/href
+  {id:'r10',zipLabel:'66000–79999',ranges:[[66000,79999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEGRH01'},
+   anr:{p1:'DEGRH01'},isrOnP3:false},
+
+  // 80000–87999 — 20/40 dry/high
+  {id:'r11',zipLabel:'80000–87999',ranges:[[80000,87999]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DEMUN01'},
+   anr:{p1:'DEMUN01'},isrOnP3:false},
+
+  // 88000–89999 — 20/40 dry/high/href
+  {id:'r12',zipLabel:'88000–89999',ranges:[[88000,89999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEGRH01'},
+   anr:{p1:'DEGRH01'},isrOnP3:false},
+
+  // 90000–99000 — 20/40 dry/high
+  {id:'r13',zipLabel:'90000–99000',ranges:[[90000,99000]],
+   sizes:['20','40'],types:['dry','high'],
+   rtm:{p1:'DENUE02'},
+   anr:{p1:'DENUE02'},isrOnP3:false},
 ];
 function findRule(zip,size,type){
   const z=parseInt(zip,10);
+  // First pass: exact type match
   for(const r of RULES){
     if(!r.ranges.some(([lo,hi])=>z>=lo&&z<=hi))continue;
     if(!r.sizes.includes(size))continue;
-    if(r.types.includes(type)||r.types.includes('dry'))return r;
-  }return null;
+    if(r.types.includes(type))return r;
+  }
+  // Second pass: fallback to 'dry' rule for same zip+size (handles href→dry fallback)
+  for(const r of RULES){
+    if(!r.ranges.some(([lo,hi])=>z>=lo&&z<=hi))continue;
+    if(!r.sizes.includes(size))continue;
+    if(r.types.includes('dry'))return r;
+  }
+  return null;
 }
 function region(zip){
   const z=parseInt(zip,10);
@@ -813,7 +917,7 @@ function doLookup(){
   // ISR alert
   const opts=port==='RTM'?rule.rtm:rule.anr||rule.rtm;
   document.getElementById('isrAlert').style.display=
-    (rule.isrOnP3&&opts.p3)?'flex':'none';
+    (rule.isrOnP3&&(opts.p3||false))?'flex':'none';
 
   // Depot pills — clickable
   function makePill(code,rank,isrR,isMulti,multiTxt){
