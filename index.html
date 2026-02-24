@@ -797,14 +797,19 @@ function bargeCard(dep,yot,termCode,ctx){
             <div class="win-item-sub">${latestETA.getFullYear()}</div>
           </div>
         </div>
-        <button class="copy-btn" onclick="copyBooking(this,${JSON.stringify({
-          zip:ctx.zip,container:ctx.container,
-          loadDate:ctx.loadDate,loadTime:ctx.loadTime,
-          depot:ctx.depotCode,depotName:ctx.depotName,
-          modality:dep.mod,etd:'${fmt(dep.etd)}',
-          terminal:ctx.termCode,termName:ctx.termName,
-          cco:'${fmt(ccoMin)}',eta:'${fmt(latestETA)}'
-        }).replace(/'/g,"\\'")})">⎘ Copy Booking Summary</button>
+        <button class="copy-btn" onclick="copyBooking(this)"
+          data-zip="${ctx.zip}"
+          data-container="${ctx.container}"
+          data-loaddate="${ctx.loadDate}"
+          data-loadtime="${ctx.loadTime}"
+          data-depot="${ctx.depotCode}"
+          data-depotname="${ctx.depotName}"
+          data-modality="${dep.mod}"
+          data-etd="${fmt(dep.etd)}"
+          data-terminal="${ctx.termCode}"
+          data-termname="${ctx.termName}"
+          data-cco="${fmt(ccoMin)}"
+          data-eta="${fmt(latestETA)}">⎘ Copy Booking Summary</button>
       </div>
     </div>
   </div>`;
@@ -1157,23 +1162,24 @@ function buildRefTable(){
 }
 
 // ══ Copy full booking summary ════════════════════════
-function copyBooking(btn,d){
+function copyBooking(btn){
+  const d=btn.dataset;
   const divider='─────────────────────────────────';
   const text=[
     'MAERSK DE — INLAND BOOKING SUMMARY',
     divider,
     `Customer ZIP (PLZ)  : ${d.zip}`,
     `Container           : ${d.container}`,
-    `Loading Date        : ${d.loadDate.split('-').reverse().join('/')}`,
-    `Loading Time (CET)  : ${d.loadTime}`,
+    `Loading Date        : ${(d.loaddate||'').split('-').reverse().join('/')}`,
+    `Loading Time (CET)  : ${d.loadtime}`,
     divider,
     'INLAND TRANSPORT',
-    `Depot               : ${d.depot} — ${d.depotName}`,
+    `Depot               : ${d.depot} — ${d.depotname}`,
     `Modality            : ${d.modality}`,
     `Departure (ETD)     : ${d.etd}`,
     divider,
     'VESSEL PLANNING WINDOW',
-    `Terminal            : ${d.terminal} — ${d.termName}`,
+    `Terminal            : ${d.terminal} — ${d.termname}`,
     `Earliest Vessel CCO : ${d.cco}`,
     `Latest Vessel ETA   : ${d.eta}`,
     divider,
