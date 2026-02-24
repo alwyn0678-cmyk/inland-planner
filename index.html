@@ -133,7 +133,8 @@ body{font-family:var(--ff);background:var(--s2);color:var(--ink);min-height:100v
 
 /* window column */
 .bc-win{flex:1;padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
-.bc-win-ttl{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--mu);}
+.bc-win-hdr{font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:2px;}
+.bc-win-ttl{font-family:var(--fm);font-size:10px;color:var(--mu);margin-bottom:8px;}
 .bc-win-rows{display:flex;gap:12px;flex-wrap:wrap;}
 .win-item{flex:1;min-width:160px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 14px;}
 .win-item-lbl{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
@@ -742,15 +743,16 @@ function bargeCard(dep,yot,termCode){
         ${cutoffNote}
       </div>
       <div class="bc-win">
-        <div class="bc-win-ttl">Book a vessel where <strong>both</strong> conditions are met:</div>
+        <div class="bc-win-hdr">VESSEL PLANNING WINDOW</div>
+        <div class="bc-win-ttl">Select a vessel within the following window:</div>
         <div class="bc-win-rows">
           <div class="win-item">
-            <div class="win-item-lbl cco">Vessel CCO on or after</div>
+            <div class="win-item-lbl cco">Earliest Vessel CCO</div>
             <div class="win-item-date cco">${fmtS(ccoMin)}</div>
             <div class="win-item-sub">${ccoMin.getFullYear()}</div>
           </div>
           <div class="win-item">
-            <div class="win-item-lbl etd">Vessel ETA no later than</div>
+            <div class="win-item-lbl etd">Latest Vessel ETA</div>
             <div class="win-item-date etd">${fmtS(latestETA)}</div>
             <div class="win-item-sub">${latestETA.getFullYear()}</div>
           </div>
