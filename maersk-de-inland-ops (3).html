@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maersk DE — Inland Ops</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1117;--ink2:#1c2230;--ink3:#2a3347;
+  --s:#fff;--s2:#f7f8fa;--s3:#eef0f4;
+  --mu:#8893a6;--bd:#dde1ea;
+  --blue:#0063a5;--bl:#e8f2fb;--bm:#cce0f5;
+  --grn:#0e7a4a;--gb:#e8f7f0;--gbd:#a3d9be;
+  --amb:#b45309;--ab:#fef3e2;--abd:#f6c878;
+  --red:#c0152a;--rb:#fdeef0;--rbd:#f4a8b0;
+  --ff:'Barlow',sans-serif;--fc:'Barlow Condensed',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:8px;--rs:5px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--ff);background:var(--s2);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.top{background:var(--ink);height:48px;display:flex;align-items:center;padding:0 24px;flex-shrink:0;position:sticky;top:0;z-index:200;}
+.wm{font-family:var(--fc);font-size:20px;font-weight:700;letter-spacing:.12em;color:#fff;text-transform:uppercase;}
+.tsep{width:1px;height:20px;background:rgba(255,255,255,.15);margin:0 16px;}
+.tmod{font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.4);}
+.tr{margin-left:auto;}
+.ttag{font-family:var(--fm);font-size:10px;padding:3px 8px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);}
+
+/* TAB NAV */
+.tnav{background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.07);display:flex;padding:0 24px;position:sticky;top:48px;z-index:199;}
+.tbtn{display:flex;align-items:center;gap:7px;padding:0 18px;height:40px;font-family:var(--fc);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.tbtn:hover{color:rgba(255,255,255,.7);}
+.tbtn.active{color:#fff;border-bottom-color:#5ba8e0;}
+.tbdg{font-family:var(--fm);font-size:9px;padding:1px 5px;background:rgba(255,255,255,.1);border-radius:3px;color:rgba(255,255,255,.4);}
+.tbtn.active .tbdg{background:rgba(91,168,224,.2);color:#5ba8e0;}
+.page{display:none;flex:1;flex-direction:column;}
+.page.active{display:flex;}
+
+/* ═══════════════ HERO / FORM ═══════════════ */
+.hero{background:var(--ink2);padding:28px 24px 24px;position:relative;overflow:hidden;flex-shrink:0;}
+.hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 60px);pointer-events:none;}
+.hi{max-width:900px;margin:0 auto;position:relative;z-index:1;}
+.hey{font-family:var(--fc);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;}
+.htl{font-family:var(--fc);font-size:24px;font-weight:700;color:#fff;letter-spacing:.02em;margin-bottom:18px;line-height:1.15;}
+.htl span{color:#5ba8e0;}
+
+/* form fields */
+.form-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fgl{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;}
+.fgi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--rs);padding:9px 12px;font-family:var(--fm);font-size:13px;color:#fff;outline:none;color-scheme:dark;transition:border-color .15s;width:100%;}
+.fgi:focus{border-color:rgba(255,255,255,.35);box-shadow:0 0 0 3px rgba(91,168,224,.15);}
+.fgi::placeholder{color:rgba(255,255,255,.2);}
+.fgi option,.fgi optgroup{background:#1c2230;}
+.fg-zip .fgi{font-size:20px;font-weight:600;letter-spacing:.08em;width:120px;}
+.fg-cnt{display:flex;gap:6px;}
+.fg-cnt .fgi{width:auto;}
+.fg-dt{display:flex;gap:6px;}
+.fg-dt .fgi{width:auto;}
+.gobtn{background:var(--blue);border:none;border-radius:var(--rs);padding:0 32px;height:42px;font-family:var(--fc);font-size:16px;font-weight:700;letter-spacing:.08em;color:#fff;cursor:pointer;transition:background .15s;text-transform:uppercase;white-space:nowrap;align-self:flex-end;flex-shrink:0;}
+.gobtn:hover{background:#0055a0;}
+.gobtn:active{background:#004080;}
+
+/* ═══════════════ CONTENT ═══════════════ */
+.scont{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px 24px 48px;}
+
+/* empty */
+#emptyPane{text-align:center;padding:60px 0;color:var(--mu);}
+.ei{font-size:40px;margin-bottom:14px;opacity:.3;}
+.em{font-size:14px;color:var(--mu);max-width:380px;margin:0 auto;line-height:1.6;}
+.exs{margin-top:20px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
+.eg{font-family:var(--fm);font-size:11px;padding:5px 12px;background:var(--s);border:1px solid var(--bd);border-radius:var(--rs);color:var(--blue);cursor:pointer;transition:all .12s;}
+.eg:hover{background:var(--bl);border-color:var(--blue);}
+
+/* result */
+#resultPane{display:none;}
+#resultPane.show{display:block;animation:fu .25s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* context bar */
+.ctx-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 14px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);flex-wrap:wrap;}
+.ctx-item{display:flex;align-items:center;gap:5px;}
+.ctx-lbl{font-family:var(--fm);font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;}
+.ctx-val{font-family:var(--fm);font-size:12px;font-weight:600;color:var(--ink3);}
+.ctx-sep{color:var(--bd);font-size:14px;}
+.ctx-terminal{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--blue);background:var(--bl);padding:2px 8px;border-radius:3px;border:1px solid var(--bm);}
+.ctx-yot{font-family:var(--fm);font-size:11px;color:var(--grn);font-weight:600;}
+.rcl{margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--mu);cursor:pointer;background:none;border:1px solid var(--bd);padding:4px 10px;border-radius:var(--rs);transition:all .12s;}
+.rcl:hover{color:var(--red);border-color:var(--rbd);}
+
+/* ISR */
+.isra{background:#fff5f5;border:1px solid var(--rbd);border-left:4px solid var(--red);border-radius:var(--r);padding:10px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;}
+.israt{font-size:13px;color:#7f1d1d;line-height:1.5;}
+.israt strong{font-weight:600;}
+
+/* depot rack */
+.depot-rack{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.depot-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--s);border:1px solid var(--bd);border-radius:50px;flex-shrink:0;cursor:pointer;transition:all .15s;user-select:none;}
+.depot-pill:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);transform:translateY(-1px);}
+.depot-pill.rank1{border-color:var(--gbd);background:var(--gb);}
+.depot-pill.rank2{border-color:var(--abd);background:var(--ab);}
+.depot-pill.rank3{border-color:var(--rbd);background:var(--rb);}
+.depot-pill.selected{box-shadow:0 0 0 3px var(--blue);border-color:var(--blue) !important;background:var(--bl) !important;}
+.depot-pill.selected .dp-code{color:var(--blue);}
+.dp-num{font-family:var(--fm);font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dp-n1{background:var(--grn);color:#fff;}
+.dp-n2{background:var(--amb);color:#fff;}
+.dp-n3{background:var(--red);color:#fff;}
+.dp-code{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--ink);}
+.dp-name{font-size:12px;color:var(--mu);}
+.dp-isr{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--red);background:var(--rb);padding:1px 6px;border-radius:3px;border:1px solid var(--rbd);}
+.depot-pill.rank2 .dp-name,.depot-pill.rank3 .dp-name{display:none;}
+.depot-hint{font-family:var(--fm);font-size:11px;color:var(--mu);padding:4px 2px 16px;}
+
+/* ═══════════════ BARGE OPTIONS ═══════════════ */
+.section-ttl{font-family:var(--fc);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--mu);margin-bottom:12px;}
+
+.barge-list{display:flex;flex-direction:column;gap:10px;}
+
+/* barge card */
+.bc{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;display:flex;align-items:stretch;}
+.bc-accent{width:5px;flex-shrink:0;}
+.bc-accent.barge{background:#1a56a0;}
+.bc-accent.rail{background:#0e7a4a;}
+.bc-body{flex:1;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+
+/* departure column */
+.bc-dep{padding:16px 20px;min-width:180px;border-right:1px solid var(--bd);}
+.bc-dep-tag{font-family:var(--fm);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mu);margin-bottom:4px;}
+.bc-dep-date{font-family:var(--fc);font-size:22px;font-weight:700;color:var(--ink);line-height:1.1;}
+.bc-dep-year{font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:1px;}
+.bc-sameday{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-family:var(--fm);font-size:10px;color:var(--amb);background:var(--ab);border:1px solid var(--abd);padding:2px 7px;border-radius:3px;}
+
+/* window column */
+.bc-win{flex:1;padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
+.bc-win-ttl{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--mu);}
+.bc-win-rows{display:flex;gap:12px;flex-wrap:wrap;}
+.win-item{flex:1;min-width:160px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 14px;}
+.win-item-lbl{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.win-item-lbl.cco{color:var(--blue);}
+.win-item-lbl.etd{color:var(--grn);}
+.win-item-date{font-family:var(--fc);font-size:20px;font-weight:700;line-height:1.1;}
+.win-item-date.cco{color:var(--blue);}
+.win-item-date.etd{color:var(--grn);}
+.win-item-sub{font-family:var(--fm);font-size:10px;color:var(--mu);margin-top:3px;}
+
+/* recommended badge */
+.bc-recommended{border-color:var(--gbd);}
+.bc-rec-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn);background:var(--gb);border:1px solid var(--gbd);padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
+/* next-day cutoff note */
+.bc-cutoff-note{display:flex;align-items:center;gap:5px;margin-top:6px;font-family:var(--fm);font-size:10px;color:var(--blue);background:var(--bl);border:1px solid var(--bm);padding:3px 8px;border-radius:3px;}
+/* skipped banner */
+.bc-skipped{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;margin-bottom:8px;background:var(--s3);border:1px solid var(--bd2);border-left:4px solid var(--mu);border-radius:var(--r);font-family:var(--fm);font-size:11px;color:var(--mu);line-height:1.5;}
+/* no schedule */
+.no-sched{padding:24px;text-align:center;background:var(--s3);border:1px solid var(--bd);border-radius:var(--r);font-family:var(--fm);font-size:12px;color:var(--mu);}
+
+/* ref table toggle */
+.refsec{margin-top:32px;}
+.reftog{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;user-select:none;transition:background .12s;}
+.reftog:hover{background:var(--s3);}
+.reftl{font-family:var(--fc);font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);}
+.refbdg{font-family:var(--fm);font-size:10px;padding:2px 7px;background:var(--s3);border:1px solid var(--bd);color:var(--mu);border-radius:3px;margin-left:10px;}
+.refc{font-size:11px;color:var(--mu);transition:transform .2s;}
+.refc.open{transform:rotate(180deg);}
+.refw{border:1px solid var(--bd);border-top:none;border-radius:0 0 var(--r) var(--r);overflow-x:auto;display:none;}
+.refw.open{display:block;}
+table.reft{width:100%;border-collapse:collapse;font-size:12px;}
+.reft th{font-family:var(--fm);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--mu);padding:7px 11px;border-bottom:1px solid var(--bd);background:var(--s2);text-align:left;white-space:nowrap;}
+.reft td{padding:8px 11px;border-bottom:1px solid rgba(221,225,234,.6);vertical-align:middle;}
+.reft tr:last-child td{border-bottom:none;}
+.reft tbody tr:hover td{background:var(--s2);}
+.reft tr.hl td{background:var(--bl);}
+.reft tr.hl td:first-child{border-left:3px solid var(--blue);padding-left:8px;}
+.tdz{font-family:var(--fm);font-size:11px;font-weight:500;white-space:nowrap;}
+.tds{font-family:var(--fm);font-size:10px;padding:2px 5px;background:var(--s3);border:1px solid var(--bd);border-radius:3px;white-space:nowrap;}
+.tdp1{font-family:var(--fm);font-size:11px;color:var(--grn);font-weight:500;}
+.tdp2{font-family:var(--fm);font-size:11px;color:var(--amb);}
+.tdp3{font-family:var(--fm);font-size:11px;color:var(--red);}
+.tdn{font-family:var(--fm);font-size:11px;color:var(--mu);}
+.isrbdg{font-size:9px;padding:1px 4px;background:var(--rb);color:var(--red);border:1px solid var(--rbd);border-radius:2px;font-family:var(--fm);font-weight:600;margin-left:3px;}
+
+/* ═══════════════ PRD TAB ═══════════════ */
+.prdlyt{display:grid;grid-template-columns:200px 1fr;gap:0;flex:1;max-width:1060px;width:100%;margin:0 auto;padding:26px 24px 60px;align-items:start;}
+.prdsb{position:sticky;top:100px;padding-right:20px;}
+.sbttl{font-family:var(--fm);font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
+.snav{display:block;font-family:var(--fm);font-size:11px;color:var(--mu);padding:4px 7px;border-radius:4px;text-decoration:none;transition:all .12s;border-left:2px solid transparent;line-height:1.3;margin-bottom:1px;}
+.snav:hover{color:var(--ink);background:var(--s3);}
+.snav.active{color:var(--blue);border-left-color:var(--blue);background:var(--bl);}
+.smeta{margin-top:16px;padding:10px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);}
+.smr{display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;margin-bottom:4px;}
+.smr:last-child{margin-bottom:0;}
+.sml{color:var(--mu);}.smv{color:var(--ink);font-weight:500;}.smst{color:var(--amb);font-weight:600;}
+.prdcnt{min-width:0;}
+.prdtop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.prddtl{font-family:var(--fc);font-size:21px;font-weight:700;color:var(--ink);}
+.prddst{font-size:12px;color:var(--mu);font-family:var(--fm);margin-top:2px;}
+.expbtn{font-family:var(--fm);font-size:11px;color:var(--blue);background:none;border:1px solid var(--bm);padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .12s;white-space:nowrap;margin-top:3px;}
+.expbtn:hover{background:var(--bl);}
+.psec{margin-bottom:7px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s);overflow:hidden;}
+.psh{display:flex;align-items:center;gap:11px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .12s;border-bottom:1px solid transparent;}
+.psh:hover{background:var(--s2);}
+.psec.open .psh{border-bottom-color:var(--bd);background:var(--s2);}
+.psn{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--blue);background:var(--bl);padding:2px 7px;border-radius:3px;flex-shrink:0;}
+.pst{font-family:var(--fc);font-size:15px;font-weight:700;letter-spacing:.03em;color:var(--ink);flex:1;}
+.psc{font-size:11px;color:var(--mu);transition:transform .2s;flex-shrink:0;}
+.psec.open .psc{transform:rotate(180deg);}
+.pbdy{padding:18px 20px 22px;display:none;font-size:13px;line-height:1.65;color:var(--ink3);}
+.psec.open .pbdy{display:block;animation:fu .15s ease;}
+.pbdy h3{font-family:var(--fc);font-size:14px;font-weight:700;color:var(--ink);margin:16px 0 6px;letter-spacing:.02em;}
+.pbdy h3:first-child{margin-top:0;}
+.pbdy p{margin-bottom:10px;}
+.pbdy ul{margin:0 0 10px;padding-left:18px;}
+.pbdy li{margin-bottom:4px;font-size:13px;}
+.pbdy strong{font-weight:600;color:var(--ink);}
+.ptw{overflow-x:auto;margin:10px 0;}
+table.pt{width:100%;border-collapse:collapse;font-size:12px;}
+.pt th{font-family:var(--fm);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#fff;background:var(--ink);padding:7px 11px;text-align:left;white-space:nowrap;}
+.pt td{padding:7px 11px;border-bottom:1px solid rgba(221,225,234,.7);vertical-align:top;font-size:12px;}
+.pt tr:last-child td{border-bottom:none;}
+.pt tr:nth-child(even) td{background:var(--s2);}
+.cid{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--blue);white-space:nowrap;}
+.cco{font-family:var(--fm);font-size:11px;color:var(--blue);}
+.cg{color:var(--grn);font-weight:600;}.ca{color:var(--amb);font-weight:600;}.cr{color:var(--red);font-weight:600;}.cm{color:var(--mu);}
+.ib{padding:12px 14px;border-radius:var(--r);margin:10px 0;border-left:4px solid;}
+.ib.blue{background:var(--bl);border-color:var(--blue);}
+.ib.green{background:var(--gb);border-color:var(--grn);}
+.ib.amber{background:var(--ab);border-color:var(--amb);}
+.ib.red{background:var(--rb);border-color:var(--red);}
+.ibt{font-family:var(--fc);font-size:12px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.ib.blue .ibt{color:var(--blue);}.ib.green .ibt{color:var(--grn);}.ib.amber .ibt{color:var(--amb);}.ib.red .ibt{color:var(--red);}
+.ib p{font-size:12px;margin:0;line-height:1.6;}
+.crow{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid rgba(221,225,234,.5);}
+.crow:last-child{border-bottom:none;}
+.cpill{font-family:var(--fm);font-size:9px;font-weight:700;padding:3px 7px;border-radius:3px;flex-shrink:0;min-width:40px;text-align:center;}
+.ph{background:var(--rb);color:var(--red);}.ps{background:var(--ab);color:var(--amb);}
+.ctx2{font-size:12px;flex:1;}
+.cco2{font-size:11px;color:var(--mu);margin-top:2px;font-family:var(--fm);}
+
+footer{background:var(--ink);padding:10px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.fi{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.25);}
+.fv{color:rgba(255,255,255,.55);}
+.fsep{color:rgba(255,255,255,.12);}
+
+@media(max-width:680px){
+  .form-row{gap:12px;}
+  .prdlyt{grid-template-columns:1fr;}
+  .prdsb{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <span class="wm">Maersk</span>
+  <div class="tsep"></div>
+  <span class="tmod">inland.ops.de</span>
+  <div class="tr"><span class="ttag" id="todayTag"></span></div>
+</nav>
+
+<div class="tnav">
+  <button class="tbtn active" id="tab-plan" onclick="switchTab('plan')">📦 Booking Planner <span class="tbdg">LIVE</span></button>
+  <button class="tbtn" id="tab-prd" onclick="switchTab('prd')">📋 Planning Spec <span class="tbdg">v1.0</span></button>
+</div>
+
+<!-- ══════════ TAB 1 ══════════ -->
+<div class="page active" id="page-plan">
+  <div class="hero">
+    <div class="hi">
+      <div class="hey">Inland Operations · Germany</div>
+      <div class="htl">Inland <span>Booking Planner</span></div>
+      <div class="form-row">
+
+        <div class="fg fg-zip">
+          <label class="fgl">Postcode (PLZ)</label>
+          <input class="fgi" type="text" id="zipInput" placeholder="40000" maxlength="5" inputmode="numeric"
+            oninput="this.value=this.value.replace(/\D/g,'')"
+            onkeydown="if(event.key==='Enter')doLookup()">
+        </div>
+
+        <div class="fg">
+          <label class="fgl">Container</label>
+          <div class="fg-cnt">
+            <select class="fgi" id="sizeSelect">
+              <option value="20">20'</option>
+              <option value="40" selected>40'</option>
+            </select>
+            <select class="fgi" id="typeSelect">
+              <option value="dry">Dry</option>
+              <option value="high">High Cube</option>
+              <option value="href">Hanger / Reefer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="fgl">Loading Date &amp; Time (CET)</label>
+          <div class="fg-dt">
+            <input class="fgi" type="date" id="loadDate">
+            <input class="fgi" type="time" id="loadTime" value="08:00" style="min-width:95px">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="fgl">Terminal</label>
+          <select class="fgi" id="terminalSelect" style="min-width:260px">
+            <option value="">— Select terminal —</option>
+            <optgroup label="🇳🇱 Rotterdam">
+              <option value="NLROTTM|5|RTM">NLROTTM — APM Terminals Rotterdam (5d YOT)</option>
+              <option value="NLROTWG|7|RTM">NLROTWG — Rotterdam World Gateway (7d YOT)</option>
+              <option value="NLROT01|8|RTM">NLROT01 — Hutchison Ports Delta II (8d YOT)</option>
+              <option value="NLROT21|8|RTM">NLROT21 — ECT Delta Terminal (8d YOT)</option>
+            </optgroup>
+            <optgroup label="🇧🇪 Antwerp">
+              <option value="BEANT869|7|ANR">BEANT869 — PSA Europa Terminal (7d YOT)</option>
+              <option value="BEANT913|7|ANR">BEANT913 — PSA Noordzee Terminal (7d YOT)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <button class="gobtn" onclick="doLookup()">Plan →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scont">
+    <div id="emptyPane">
+      <div class="ei">📦</div>
+      <div class="em">Fill in all fields above and click <strong>Plan →</strong> to see which barges you can catch and when to book a vessel.</div>
+      <div class="exs">
+        <button class="eg" onclick="ql('40000','40','dry','2026-02-25','08:00','NLROTTM|5|RTM')">40000 · 40' Dry · NLROTTM</button>
+        <button class="eg" onclick="ql('53200','20','dry','2026-02-25','12:00','BEANT869|7|ANR')">53200 · 20' Dry · BEANT869</button>
+        <button class="eg" onclick="ql('68159','40','dry','2026-02-25','10:00','BEANT913|7|ANR')">68159 · 40' Dry · BEANT913</button>
+        <button class="eg" onclick="ql('60329','40','high','2026-02-26','09:00','NLROTWG|7|RTM')">60329 · 40' HC · NLROTWG</button>
+      </div>
+    </div>
+
+    <div id="resultPane">
+
+      <!-- Context bar -->
+      <div class="ctx-bar">
+        <div class="ctx-item"><span class="ctx-lbl">PLZ</span><span class="ctx-val" id="ctxZip">—</span></div>
+        <span class="ctx-sep">·</span>
+        <div class="ctx-item"><span class="ctx-val" id="ctxCnt">—</span></div>
+        <span class="ctx-sep">·</span>
+        <div class="ctx-item"><span class="ctx-lbl">Loading</span><span class="ctx-val" id="ctxDate">—</span></div>
+        <span class="ctx-sep">·</span>
+        <div class="ctx-item"><span class="ctx-terminal" id="ctxTerm">—</span><span class="ctx-yot" id="ctxYot" style="margin-left:6px"></span></div>
+        <button class="rcl" onclick="clearResult()">✕ New search</button>
+      </div>
+
+      <!-- ISR alert -->
+      <div id="isrAlert" class="isra" style="display:none">
+        <span style="font-size:16px;flex-shrink:0">⚠️</span>
+        <div class="israt"><strong>ISR Required for 3rd Option depot.</strong> Raise an Inland Service Request and get sign-off from your supervisor before confirming with the customer.</div>
+      </div>
+
+      <!-- Depot options -->
+      <div class="section-ttl">Depot Options <span style="font-family:var(--fm);font-size:10px;color:var(--mu);font-weight:400;text-transform:none;letter-spacing:0">— click a depot to see its schedule</span></div>
+      <div class="depot-rack" id="depotRack"></div>
+
+      <!-- Barge options -->
+      <div class="section-ttl" id="bargeTitle" style="display:none"></div>
+      <div class="barge-list" id="bargeList"></div>
+
+      <!-- ref table -->
+      <div class="refsec">
+        <div class="reftog" onclick="toggleRef()">
+          <div style="display:flex;align-items:center">
+            <span class="reftl">ZIP Coverage Matrix</span>
+            <span class="refbdg" id="ruleCount">—</span>
+          </div>
+          <span class="refc" id="refChev">▼</span>
+        </div>
+        <div class="refw" id="refWrap"><table class="reft" id="refTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB 2: PRD ══════════ -->
+<div class="page" id="page-prd">
+  <div class="prdlyt">
+    <aside class="prdsb">
+      <div class="sbttl">Sections</div>
+      <a class="snav active" href="#" onclick="goSec('s1');return false">1 · Goal & Problem</a>
+      <a class="snav" href="#" onclick="goSec('s2');return false">2 · Users & Stories</a>
+      <a class="snav" href="#" onclick="goSec('s3');return false">3 · Inputs</a>
+      <a class="snav" href="#" onclick="goSec('s4');return false">4 · YOT Reference</a>
+      <a class="snav" href="#" onclick="goSec('s5');return false">5 · Calculation Logic</a>
+      <a class="snav" href="#" onclick="goSec('s6');return false">6 · Feasibility Rules</a>
+      <a class="snav" href="#" onclick="goSec('s7');return false">7 · Output Design</a>
+      <a class="snav" href="#" onclick="goSec('s8');return false">8 · Edge Cases</a>
+      <a class="snav" href="#" onclick="goSec('s9');return false">9 · Assumptions</a>
+      <a class="snav" href="#" onclick="goSec('s10');return false">10 · KPIs</a>
+      <a class="snav" href="#" onclick="goSec('s11');return false">11 · Open Questions</a>
+      <div class="smeta">
+        <div class="smr"><span class="sml">Version</span><span class="smv">1.0</span></div>
+        <div class="smr"><span class="sml">Status</span><span class="smst">In Review</span></div>
+        <div class="smr"><span class="sml">Market</span><span class="smv">DE</span></div>
+        <div class="smr"><span class="sml">Updated</span><span class="smv">Feb 2026</span></div>
+      </div>
+    </aside>
+    <div class="prdcnt">
+      <div class="prdtop">
+        <div>
+          <div class="prddtl">Inland Booking Feasibility Planner</div>
+          <div class="prddst">Product Requirement Document · DE Inland Operations · CX Team</div>
+        </div>
+        <button class="expbtn" id="expBtn" onclick="expandAll()">Expand All</button>
+      </div>
+
+      <div class="psec open" id="s1"><div class="psh" onclick="toggleSec('s1')"><span class="psn">01</span><span class="pst">Goal & Problem Statement</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <h3>The Problem</h3>
+        <p>CX books vessels without reliably accounting for barge/rail transit times, terminal Yard Opening Time (YOT), and Cargo Cut-Off (CCO). This causes two recurring failures:</p>
+        <ul>
+          <li><strong>YOT not open:</strong> container arrives at the terminal before the yard opens for that vessel — terminal refuses gate-in</li>
+          <li><strong>CCO already passed:</strong> container arrives after the vessel cut-off — cargo is rolled, re-planning required, customer impact</li>
+        </ul>
+        <p>Both failures create extra work and cost that could be prevented at booking stage.</p>
+        <h3>The Goal</h3>
+        <p>Give CX a single tool that, given a loading date and terminal, shows: (1) which barges/rail they can catch, and (2) the exact vessel booking window — "CCO must be on or after X, vessel ETD must be on or after Y" — so containers are planned onto a vessel they can physically make with no discharge issues.</p>
+      </div></div>
+
+      <div class="psec" id="s2"><div class="psh" onclick="toggleSec('s2')"><span class="psn">02</span><span class="pst">Users & User Stories</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <div class="ptw"><table class="pt"><tr><th>#</th><th>As a…</th><th>I want to…</th><th>So that…</th></tr>
+          <tr><td class="cid">US-1</td><td>CX Coordinator</td><td>Select ZIP, container, loading date, and terminal and see which barges I can catch</td><td>I never miss a departure because I checked too late</td></tr>
+          <tr><td class="cid">US-2</td><td>CX Coordinator</td><td>See a clear "book a vessel with CCO ≥ [date] and ETD ≥ [date]" per barge</td><td>I know exactly which vessels are safe to plan without needing to calculate manually</td></tr>
+          <tr><td class="cid">US-3</td><td>CX Coordinator</td><td>Know immediately if an ISR is required</td><td>I escalate before confirming with the customer</td></tr>
+          <tr><td class="cid">US-4</td><td>CX Team Lead</td><td>Audit the logic behind each result</td><td>I can train the team and trust the tool's outputs</td></tr>
+        </table></div>
+      </div></div>
+
+      <div class="psec" id="s3"><div class="psh" onclick="toggleSec('s3')"><span class="psn">03</span><span class="pst">Inputs</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <div class="ptw"><table class="pt"><tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+          <tr><td><strong>ZIP (PLZ)</strong></td><td>4–5 digit numeric</td><td>Resolves to preferred / 2nd / 3rd option depots</td></tr>
+          <tr><td><strong>Container Size</strong></td><td>20' / 40'</td><td>Affects which depots apply</td></tr>
+          <tr><td><strong>Container Type</strong></td><td>Dry / High Cube / Hanger/Reefer</td><td>Affects which depots apply</td></tr>
+          <tr><td><strong>Loading Date</strong></td><td>Date</td><td>Determines the earliest possible barge departure</td></tr>
+          <tr><td><strong>Loading Time</strong></td><td>HH:MM CET</td><td>Same-day departures are flagged for depot confirmation</td></tr>
+          <tr><td><strong>Terminal</strong></td><td>Select from 6 options</td><td>Drives port routing (RTM or ANR) and YOT days</td></tr>
+        </table></div>
+      </div></div>
+
+      <div class="psec" id="s4"><div class="psh" onclick="toggleSec('s4')"><span class="psn">04</span><span class="pst">Terminal YOT Reference</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <p>YOT (Yard Opening Time) = how many calendar days before vessel ETD the terminal starts accepting gate-in. If a container arrives before this window opens, the terminal will not accept it.</p>
+        <div class="ptw"><table class="pt"><tr><th>Terminal</th><th>Name</th><th>Port</th><th>YOT</th></tr>
+          <tr><td class="cco">NLROTTM</td><td>APM Terminals Rotterdam</td><td>🇳🇱 Rotterdam</td><td class="cg"><strong>5 days</strong></td></tr>
+          <tr><td class="cco">NLROTWG</td><td>Rotterdam World Gateway</td><td>🇳🇱 Rotterdam</td><td class="ca"><strong>7 days</strong></td></tr>
+          <tr><td class="cco">NLROT01</td><td>Hutchison Ports Delta II</td><td>🇳🇱 Rotterdam</td><td class="cr"><strong>8 days</strong></td></tr>
+          <tr><td class="cco">NLROT21</td><td>ECT Delta Terminal</td><td>🇳🇱 Rotterdam</td><td class="cr"><strong>8 days</strong></td></tr>
+          <tr><td class="cco">BEANT869</td><td>PSA Europa Terminal (K869)</td><td>🇧🇪 Antwerp</td><td class="ca"><strong>7 days</strong></td></tr>
+          <tr><td class="cco">BEANT913</td><td>PSA Noordzee Terminal (K913)</td><td>🇧🇪 Antwerp</td><td class="ca"><strong>7 days</strong></td></tr>
+        </table></div>
+        <div class="ib amber"><div class="ibt">Why this matters</div><p>A container arriving before the YOT window opens will be refused by the terminal. The booking window in this tool ensures CX only plans vessels where the yard will already be open on the container's arrival date.</p></div>
+      </div></div>
+
+      <div class="psec" id="s5"><div class="psh" onclick="toggleSec('s5')"><span class="psn">05</span><span class="pst">Calculation Logic (internal)</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <p>These calculations are performed internally — CX only sees the results, not the working.</p>
+        <div class="ptw"><table class="pt"><tr><th>Step</th><th>Calculation</th></tr>
+          <tr><td class="cid">1</td><td><strong>Resolve depot</strong> — ZIP + container → ranked depot list from matrix</td></tr>
+          <tr><td class="cid">2</td><td><strong>Find next departures</strong> — from loading date, find the next matching barge/rail ETDs (up to 3 per port)</td></tr>
+          <tr><td class="cid">3</td><td><strong>Terminal Arrival (EAT)</strong> — Barge ETD + transit days (last day of arrival range). No additional buffer — the range itself accounts for variance.</td></tr>
+          <tr><td class="cid">4</td><td><strong>CCO boundary</strong> — Vessel CCO must be ≥ EAT. Container arrives on EAT and must make the vessel cut-off.</td></tr>
+          <tr><td class="cid">5</td><td><strong>Latest Vessel ETA</strong> — EAT + (YOT − 1). Arrival day counts as Day 1 (inclusive). Vessel ETA must be ≤ this date so the yard is open when the container arrives.</td></tr>
+        </table></div>
+        <div class="ib blue"><div class="ibt">Calculation example</div><p><strong>EAT = Barge ETD + transit (last arrival day)</strong><br>Example: Barge departs Mon 02/03 → arrives Wed/Thu → use <strong>Thu 05/03</strong> = EAT.<br><br><strong>Latest Vessel ETA = EAT + (YOT − 1)</strong> — arrival day is Day 1 (inclusive).<br>EAT = Thu 05/03, YOT = 5: Day 1=Thu, Day 2=Fri, Day 3=Sat, Day 4=Sun, Day 5=<strong>Mon 09/03</strong>.<br>→ Book a vessel where CCO ≥ Thu 05/03 <em>and</em> vessel ETA ≤ Mon 09/03.</p></div>
+      </div></div>
+
+      <div class="psec" id="s6"><div class="psh" onclick="toggleSec('s6')"><span class="psn">06</span><span class="pst">Feasibility Rules</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <h3>Hard constraints (both must be met for a vessel to be safe)</h3>
+        <div class="crow"><span class="cpill ph">HC-1</span><div><div class="ctx2">Vessel CCO must be ≥ Planning ETA</div><div class="cco2">→ Ensures cargo makes the vessel cut-off</div></div></div>
+        <div class="crow"><span class="cpill ph">HC-2</span><div><div class="ctx2">Vessel ETD must be ≥ Planning ETA + YOT days</div><div class="cco2">→ Ensures the yard is open when the container arrives at the terminal</div></div></div>
+        <div class="crow"><span class="cpill ph">HC-3</span><div><div class="ctx2">Barge ETD must be on or after the customer loading date</div><div class="cco2">→ Cannot catch a departure that has already left</div></div></div>
+        <h3 style="margin-top:14px">Soft warnings (shown to CX)</h3>
+        <div class="crow"><span class="cpill ps">SC-1</span><div><div class="ctx2">Loading date = barge ETD (same-day departure)</div><div class="cco2">→ CX must confirm loading cut-off time with the depot</div></div></div>
+        <div class="crow"><span class="cpill ps">SC-2</span><div><div class="ctx2">Depot is 3rd option</div><div class="cco2">→ ISR required — must be raised and approved before booking</div></div></div>
+      </div></div>
+
+      <div class="psec" id="s7"><div class="psh" onclick="toggleSec('s7')"><span class="psn">07</span><span class="pst">Output Design</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <p>The tool shows one card per available barge/rail departure. Each card shows only what CX needs to act:</p>
+        <div class="ptw"><table class="pt"><tr><th>What CX sees</th><th>Example</th><th>Why</th></tr>
+          <tr><td><strong>Barge ETD</strong></td><td>🛳 Barge · Tue 25 Feb</td><td>Which departure to plan the container onto</td></tr>
+          <tr><td><strong>Vessel CCO on or after</strong></td><td>Thu 05 Mar 2026</td><td>Terminal arrival date — container must make the vessel cut-off</td></tr>
+          <tr><td><strong>Vessel ETA no later than</strong></td><td>Mon 09 Mar 2026</td><td>EAT + (YOT−1), inclusive. Vessel must arrive within the YOT window so yard is open on container arrival.</td></tr>
+        </table></div>
+        <p>Transit days, buffer calculations, and Planning ETA are <strong>not shown to CX</strong> — these are internal inputs to the two output dates only.</p>
+      </div></div>
+
+      <div class="psec" id="s8"><div class="psh" onclick="toggleSec('s8')"><span class="psn">08</span><span class="pst">Edge Cases</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <div class="ptw"><table class="pt"><tr><th>#</th><th>Scenario</th><th>Tool behaviour</th></tr>
+          <tr><td class="cid">EC-1</td><td>No barge departures in 14 days</td><td>"No departures found. Contact inland team."</td></tr>
+          <tr><td class="cid">EC-2</td><td>Same-day loading</td><td>Show departure with warning: "Confirm cut-off time with depot"</td></tr>
+          <tr><td class="cid">EC-3</td><td>ZIP not covered</td><td>"Postcode not in matrix. Contact inland team."</td></tr>
+          <tr><td class="cid">EC-4</td><td>Depot has no schedule (München, Nürnberg, Trier)</td><td>"Schedule not available for this depot. Contact inland team."</td></tr>
+          <tr><td class="cid">EC-5</td><td>Terminal not selected before clicking Plan</td><td>Prompt: "Please select a terminal."</td></tr>
+        </table></div>
+      </div></div>
+
+      <div class="psec" id="s9"><div class="psh" onclick="toggleSec('s9')"><span class="psn">09</span><span class="pst">Assumptions</span><span class="psc">▼</span></div>
+      <div class="pbdy"><ul>
+        <li>Transit days use the <strong>last day of the arrival range</strong> (conservative). Example: "Wed/Thu" → Thursday.</li>
+        <li><strong>No additional buffer</strong> is added beyond the transit range. The spread between first and last arrival day (e.g. Wed–Thu) already represents schedule variance.</li>
+        <li>All calculations use <strong>calendar days</strong> — weekends and public holidays are not excluded.</li>
+        <li>Same-day departures are <strong>flagged but included</strong> — CX must call the depot to confirm.</li>
+        <li>Schedules are shown for <strong>any clicked depot</strong>. The preferred depot (rank 1) is auto-selected on load.</li>
+        <li>Tool is <strong>advisory only</strong>. It does not create bookings in any system.</li>
+      </ul></div></div>
+
+      <div class="psec" id="s10"><div class="psh" onclick="toggleSec('s10')"><span class="psn">10</span><span class="pst">KPIs</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <div class="ptw"><table class="pt"><tr><th>Metric</th><th>Target</th><th>Timeline</th></tr>
+          <tr><td>Rolled cargo due to CCO miss</td><td class="cg">↓ 70%</td><td>6 months post go-live</td></tr>
+          <tr><td>Gate-in refused (YOT not open)</td><td class="cg">↓ 80%</td><td>6 months post go-live</td></tr>
+          <tr><td>Time for CX to identify vessel window</td><td class="cg">&lt; 2 min</td><td>From day 1</td></tr>
+          <tr><td>ISR compliance (3rd option bookings)</td><td class="cg">&gt; 95%</td><td>Ongoing</td></tr>
+          <tr><td>CX adoption rate</td><td class="cg">&gt; 80%</td><td>Within 60 days of launch</td></tr>
+        </table></div>
+      </div></div>
+
+      <div class="psec" id="s11"><div class="psh" onclick="toggleSec('s11')"><span class="psn">11</span><span class="pst">Open Questions</span><span class="psc">▼</span></div>
+      <div class="pbdy">
+        <div class="crow" style="padding:10px 0"><div class="cid" style="font-size:12px;min-width:28px">Q1</div><div><div class="ctx2"><strong>Same-day cut-off times per depot</strong> — Is there a standard time after which a same-day barge will not accept loading? This would allow the tool to auto-exclude rather than flag.</div></div></div>
+        <div class="crow" style="padding:10px 0"><div class="cid" style="font-size:12px;min-width:28px">Q2</div><div><div class="ctx2"><strong>Vessel schedule source</strong> — Should CCO and ETD data be manually maintained in this tool, or is the booking window used as a guide when CX checks Maersk.com / internal system?</div></div></div>
+        <div class="crow" style="padding:10px 0"><div class="cid" style="font-size:12px;min-width:28px">Q3</div><div><div class="ctx2"><strong>Schedules for München, Nürnberg, Trier</strong> — No barge schedule data exists for these depots. What service type do they use and can schedules be provided?</div></div></div>
+        <div class="crow" style="padding:10px 0"><div class="cid" style="font-size:12px;min-width:28px">Q4</div><div><div class="ctx2"><strong>Import direction</strong> — Should the tool eventually support import planning, or is it export-only?</div></div></div>
+      </div></div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fi">Maersk DE Inland Ops</div><span class="fsep">·</span>
+  <div class="fi">Booking Planner <span class="fv">+</span> Planning Spec</div>
+  <span class="fsep">·</span><div class="fi">Internal only · Feb 2026</div>
+</footer>
+
+<script>
+// ══ UI helpers ════════════════════════════════════════
+function switchTab(t){
+  ['plan','prd'].forEach(id=>{
+    document.getElementById('tab-'+id).classList.toggle('active',id===t);
+    document.getElementById('page-'+id).classList.toggle('active',id===t);
+  });
+}
+function toggleSec(id){document.getElementById(id).classList.toggle('open');}
+let allExp=false;
+function expandAll(){
+  allExp=!allExp;
+  document.querySelectorAll('.psec').forEach(s=>s.classList.toggle('open',allExp));
+  document.getElementById('expBtn').textContent=allExp?'Collapse All':'Expand All';
+}
+function goSec(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.add('open');
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),50);
+  document.querySelectorAll('.snav').forEach(a=>a.classList.remove('active'));
+  const lnk=document.querySelector(`.snav[onclick="goSec('${id}');return false"]`);
+  if(lnk)lnk.classList.add('active');
+}
+
+// ══ Date helpers ══════════════════════════════════════
+const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmt(d){return`${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()}`;}
+function fmtS(d){return`${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`;}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function parseDate(s){if(!s)return null;const[y,m,dd]=s.split('-').map(Number);return new Date(y,m-1,dd);}
+function jsDay(d){return d.getDay()===0?7:d.getDay();}// 1=Mon…6=Sat,7=Sun
+
+// ══ Schedule data ═════════════════════════════════════
+// transit = max days (last arrival day). CCO boundary = ETD + transit + 2.
+// ETD boundary = CCO_boundary + YOT.
+// transit = days from ETD to last arrival day (conservative)
+// buffer: 1 = arrival is a range (range already adds ~1d variance), 2 = single arrival day
+// dep: 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat 7=Sun
+const SCHED={
+  'DEDUI01':{
+    RTM:[
+      {mod:'Rail', dep:4, transit:1, buffer:2},  // Thu → Fri       (single)
+      {mod:'Rail', dep:7, transit:2, buffer:2},  // Sun → Tue       (single)
+    ],
+    ANR:[
+      {mod:'Barge',dep:3, transit:2, buffer:2},  // Wed → Fri       (single)
+      {mod:'Barge',dep:5, transit:3, buffer:2},  // Fri → Mon       (single)
+    ],
+  },
+  'DEBNX01':{
+    RTM:[
+      {mod:'Barge',dep:2, transit:3, buffer:2},  // Tue → Fri       (single)
+      {mod:'Barge',dep:6, transit:2, buffer:2},  // Sat → Mon       (single)
+    ],
+    ANR:[
+      {mod:'Barge',dep:2, transit:3, buffer:1},  // Tue → Thu-Fri   (range)
+      {mod:'Barge',dep:6, transit:2, buffer:2},  // Sat → Mon       (single)
+    ],
+  },
+  'DEAJHRA':{
+    RTM:[
+      {mod:'Barge',dep:6, transit:4, buffer:1},  // Sat → Mon-Wed   (range)
+    ],
+    ANR:[
+      {mod:'Barge',dep:2, transit:4, buffer:1},  // Tue → Thu-Sat   (range)
+    ],
+  },
+  'DEGRH01':{
+    RTM:[
+      {mod:'Barge',dep:2, transit:3, buffer:1},  // Tue → Thu-Fri   (range)
+      {mod:'Barge',dep:5, transit:4, buffer:1},  // Fri → Mon-Tue   (range)
+    ],
+    ANR:[
+      {mod:'Barge',dep:7, transit:4, buffer:1},  // Sun → Wed-Thu   (range)
+      {mod:'Barge',dep:3, transit:4, buffer:1},  // Wed → Sat-Sun   (range)
+      {mod:'Barge',dep:6, transit:3, buffer:1},  // Sat → Mon-Tue   (range)
+    ],
+  },
+  'DEG4TG':{
+    RTM:[
+      {mod:'Barge',dep:2, transit:3, buffer:1},  // Tue → Thu-Fri   (range)
+      {mod:'Barge',dep:4, transit:3, buffer:1},  // Thu → Fri-Sun   (range)
+      {mod:'Barge',dep:6, transit:3, buffer:1},  // Sat → Mon-Tue   (range)
+    ],
+    ANR:[
+      {mod:'Barge',dep:3, transit:3, buffer:1},  // Wed → Fri-Sat   (range)
+      {mod:'Barge',dep:6, transit:3, buffer:1},  // Sat → Mon-Tue   (range)
+    ],
+  },
+  'DEMHG02':{
+    RTM:[
+      {mod:'Barge',dep:1, transit:4, buffer:1},  // Mon → Thu-Fri   (range)
+      {mod:'Barge',dep:6, transit:3, buffer:1},  // Sat → Mon-Tue   (range)
+    ],
+    ANR:[
+      {mod:'Barge',dep:1, transit:3, buffer:1},  // Mon → Wed-Thu   (range)
+      {mod:'Barge',dep:4, transit:3, buffer:1},  // Thu → Sat-Sun   (range)
+      {mod:'Barge',dep:6, transit:3, buffer:1},  // Sat → Mon-Tue   (range)
+    ],
+  },
+  'DEMNZ01':{
+    RTM:[
+      {mod:'Barge',dep:1, transit:3, buffer:1},  // Mon → Wed-Thu   (range)
+      {mod:'Barge',dep:5, transit:4, buffer:1},  // Fri → Sun-Tue   (range)
+    ],
+    ANR:[
+      {mod:'Barge',dep:2, transit:3, buffer:1},  // Tue → Thu-Fri   (range)
+      {mod:'Barge',dep:5, transit:4, buffer:1},  // Fri → Sun-Tue   (range)
+    ],
+  },
+};
+
+function getNextDeps(code,port,loadingDate,loadTimeStr,n=3){
+  const sch=(SCHED[code]||{})[port];
+  if(!sch||!sch.length)return{deps:[],skipped:[]};
+  // Parse loading hour for next-day cutoff rule
+  const [lh,lm]=(loadTimeStr||'08:00').split(':').map(Number);
+  const loadingAfterNoon=(lh*60+lm)>=720; // 12:00 = 720 min
+
+  const found=[];
+  const skipped=[]; // track skipped next-day slots for the "recommended instead" note
+  for(let offset=0;offset<=25&&found.length<n;offset++){
+    const d=addDays(loadingDate,offset);
+    const dow=jsDay(d);
+    for(const s of sch){
+      if(s.dep!==dow)continue;
+      // Rule 1: same-day departure — never feasible
+      if(offset===0)continue;
+      // Rule 2: next-day departure — only feasible if loading is before 12:00
+      if(offset===1&&loadingAfterNoon){
+        skipped.push({mod:s.mod,etd:new Date(d),reason:'next-day-cutoff'});
+        continue;
+      }
+      if(found.length<n){
+        const eat=addDays(d,s.transit); // EAT = barge ETD + transit (last arrival day)
+        found.push({
+          mod:s.mod,
+          etd:new Date(d),
+          eat:new Date(eat),          // Terminal Arrival Date
+          buffer:s.buffer||2,         // 1=range arrival, 2=single arrival day
+          offset,
+          nextDayCutoff:offset===1&&!loadingAfterNoon,
+        });
+      }
+    }
+  }
+  return {deps:found, skipped};
+}
+
+// ══ Render barge card ════════════════════════════════
+function bargeCard(dep,yot,termCode){
+  const modIcon=dep.mod==='Rail'?'🚂':'🛳';
+  // CCO: EAT + buffer (buffer days ensure container physically makes cut-off)
+  const ccoMin=addDays(dep.eat,dep.buffer||2);
+  // Latest vessel ETA: EAT = Day 1, so EAT + (YOT - 1)
+  const latestETA=addDays(dep.eat,yot-1);
+  const recBadge=dep.isRecommended
+    ?`<div class="bc-rec-badge">✓ Recommended</div>`:'';
+  const cutoffNote=dep.nextDayCutoff
+    ?`<div class="bc-cutoff-note">⏰ Load before 12:00 to make this departure</div>`:'';
+  return`<div class="bc${dep.isRecommended?' bc-recommended':''}">
+    <div class="bc-accent ${dep.mod.toLowerCase()}"></div>
+    <div class="bc-body">
+      <div class="bc-dep">
+        <div class="bc-dep-tag">${modIcon} ${dep.mod} Departure</div>
+        <div class="bc-dep-date">${fmtS(dep.etd)}</div>
+        <div class="bc-dep-year">${dep.etd.getFullYear()}</div>
+        ${recBadge}
+        ${cutoffNote}
+      </div>
+      <div class="bc-win">
+        <div class="bc-win-ttl">Book a vessel where <strong>both</strong> conditions are met:</div>
+        <div class="bc-win-rows">
+          <div class="win-item">
+            <div class="win-item-lbl cco">Vessel CCO on or after</div>
+            <div class="win-item-date cco">${fmtS(ccoMin)}</div>
+            <div class="win-item-sub">${ccoMin.getFullYear()}</div>
+          </div>
+          <div class="win-item">
+            <div class="win-item-lbl etd">Vessel ETA no later than</div>
+            <div class="win-item-date etd">${fmtS(latestETA)}</div>
+            <div class="win-item-sub">${latestETA.getFullYear()}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══ ZIP / depot data ═════════════════════════════════
+const D={
+  'DEDUI01':'Hutchison Ports Duisburg','DEDUI03':'DIT Depot Duisburg',
+  'DEBNX01':'Bonn AZS','DETREAZ':'Trier AZS',
+  'DEAJHRA':'Rheinhafen Andernach','DEAJHRAHS':'Andernach H&S',
+  'DEG4TG':'Gustavsburg Contargo','DEMNZ01':'Mainz Frankenbach',
+  'DEGRH01':'Germersheim DPW','DEMHG02':'Contargo Mannheim',
+  'DEMUN01':'München Terminal','DENUE02':'Nürnberg CDN',
+};
+const RULES=[
+  {id:'r01',zipLabel:'32000–34999 / 40000–52999 / 57000–60000',ranges:[[32000,34999],[40000,52999],[57000,60000]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEDUI01',p2:'DEDUI03'},anr:{p1:'DEDUI01'},isrOnP3:false},
+  {id:'r02',zipLabel:'53000–53999',ranges:[[53000,53999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEDUI01',p2:'DEBNX01'},anr:{p1:'DEBNX01'},isrOnP3:false},
+  {id:'r03',zipLabel:'54000–54999',ranges:[[54000,54999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DETREAZ',p2txt:'DEAJHRA / DEBNX01'},anr:{p1:'DETREAZ'},isrOnP3:false},
+  {id:'r04',zipLabel:"35000–36999 / 56000–56999 (20')",ranges:[[35000,36999],[56000,56999]],sizes:['20'],types:['dry'],rtm:{p1:'DEAJHRA',p2:'DEBNX01'},anr:{p1:'DEAJHRAHS',p2:'DEBNX01'},isrOnP3:false},
+  {id:'r05',zipLabel:"35000–36999 / 56000–56999 (40')",ranges:[[35000,36999],[56000,56999]],sizes:['40'],types:['dry','high'],rtm:{p1:'DEBNX01',p2:'DEAJHRA'},anr:{p1:'DEBNX01',p2:'DEAJHRA'},isrOnP3:false},
+  {id:'r06',zipLabel:"55000–55999 / 60000–65999 (20')",ranges:[[55000,55999],[60000,65999]],sizes:['20'],types:['dry'],rtm:{p1:'DEG4TG',p2:'DEAJHRA',p3:'DEMHG02'},anr:{p1:'DEG4TG',p2:'DEAJHRA',p3:'DEMHG02'},isrOnP3:false},
+  {id:'r07',zipLabel:"55000–55999 / 60000–65999 (40')",ranges:[[55000,55999],[60000,65999]],sizes:['40'],types:['dry','high','href'],rtm:{p1:'DEMNZ01',p2:'DEAJHRA',p3:'DEMHG02'},anr:{p1:'DEMNZ01',p2:'DEAJHRA',p3:'DEMHG02'},isrOnP3:false},
+  {id:'r08',zipLabel:'66000–79999 / 88000–89999',ranges:[[66000,79999],[88000,89999]],sizes:['20','40'],types:['dry','high','href'],rtm:{p1:'DEGRH01',p2:'DEMHG02'},anr:{p1:'DEGRH01',p2:'DEMHG02'},isrOnP3:false},
+  {id:'r09',zipLabel:'80000–87999',ranges:[[80000,87999]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DEMUN01'},anr:{p1:'DEMUN01'},isrOnP3:false},
+  {id:'r10',zipLabel:'90000–99000',ranges:[[90000,99000]],sizes:['20','40'],types:['dry','high'],rtm:{p1:'DENUE02'},anr:{p1:'DENUE02'},isrOnP3:false},
+];
+function findRule(zip,size,type){
+  const z=parseInt(zip,10);
+  for(const r of RULES){
+    if(!r.ranges.some(([lo,hi])=>z>=lo&&z<=hi))continue;
+    if(!r.sizes.includes(size))continue;
+    if(r.types.includes(type)||r.types.includes('dry'))return r;
+  }return null;
+}
+function region(zip){
+  const z=parseInt(zip,10);
+  const m=[[10000,14999,'Berlin'],[20000,25999,'Hamburg / Schleswig-Holstein'],[26000,29999,'Niedersachsen / Bremen'],[30000,34999,'Niedersachsen (Hannover / Kassel)'],[35000,36999,'Hessen (Marburg / Fulda)'],[40000,47999,'NRW — Düsseldorf / Ruhr'],[48000,49999,'NRW — Münster / Osnabrück'],[50000,53999,'NRW — Köln / Bonn'],[54000,54999,'Rheinland-Pfalz — Trier'],[55000,55999,'Rheinland-Pfalz — Koblenz'],[56000,56999,'Rheinland-Pfalz — Westerwald'],[57000,59999,'NRW — Siegerland / Sauerland'],[60000,65999,'Hessen — Frankfurt / Rhein-Main'],[66000,69999,'Rheinland-Pfalz / Saarland / Mannheim'],[70000,74999,'Baden-Württemberg — Stuttgart'],[75000,79999,'Baden-Württemberg — Karlsruhe / Freiburg'],[80000,87999,'Bayern — München'],[88000,89999,'Baden-Württemberg — Ulm'],[90000,96999,'Bayern — Nürnberg / Franken'],[97000,99999,'Bayern / Thüringen']];
+  for(const[lo,hi,l]of m)if(z>=lo&&z<=hi)return l;return'Germany';
+}
+
+// ══ Main lookup ═══════════════════════════════════════
+function doLookup(){
+  const zip=document.getElementById('zipInput').value.trim();
+  const size=document.getElementById('sizeSelect').value;
+  const type=document.getElementById('typeSelect').value;
+  const loadDate=document.getElementById('loadDate').value;
+  const termVal=document.getElementById('terminalSelect').value;
+
+  // Validation
+  if(!zip||zip.length<4){alert('Please enter a valid postcode.');return;}
+  if(!loadDate){alert('Please select a loading date.');return;}
+  if(!termVal){alert('Please select a terminal.');return;}
+
+  const[termCode,yotStr,port]=termVal.split('|');
+  const yot=parseInt(yotStr,10);
+  const loadingDate=parseDate(loadDate);
+  const rule=findRule(zip,size,type);
+  const tl=`${size}' ${type.charAt(0).toUpperCase()+type.slice(1)}`;
+
+  // Switch to result view
+  document.getElementById('emptyPane').style.display='none';
+  const pane=document.getElementById('resultPane');
+  pane.style.display='block';pane.classList.remove('show');void pane.offsetWidth;pane.classList.add('show');
+
+  // Context bar
+  document.getElementById('ctxZip').textContent=`${zip} · ${region(zip)}`;
+  document.getElementById('ctxCnt').textContent=tl;
+  document.getElementById('ctxDate').textContent=`${fmtS(loadingDate)} ${document.getElementById('loadTime').value} CET`;
+  document.getElementById('ctxTerm').textContent=termCode;
+  document.getElementById('ctxYot').textContent=`· ${yot}d YOT`;
+
+  // No rule
+  if(!rule){
+    document.getElementById('depotRack').innerHTML=`<div style="padding:18px 20px;background:var(--s);border:1px solid var(--bd);border-radius:var(--r);font-family:var(--fm);font-size:12px;color:var(--mu)">🚫 Postcode <strong>${zip}</strong> is not in the depot matrix. Contact the inland coordination team.</div>`;
+    document.getElementById('isrAlert').style.display='none';
+    document.getElementById('bargeTitle').style.display='none';
+    document.getElementById('bargeList').innerHTML='';
+    hlRow(null);return;
+  }
+
+  // ISR alert
+  const opts=port==='RTM'?rule.rtm:rule.anr||rule.rtm;
+  document.getElementById('isrAlert').style.display=
+    (rule.isrOnP3&&opts.p3)?'flex':'none';
+
+  // Depot pills — clickable
+  function makePill(code,rank,isrR,isMulti,multiTxt){
+    const lbs=['','Preferred','2nd Option','3rd Option'];
+    const isrHtml=isrR?`<span class="dp-isr">ISR</span>`:'';
+    const clickable=!isMulti;
+    const onclick=clickable?`onclick="selectDepot('${code}')"`:'';
+    const label=lbs[rank];
+    if(isMulti){
+      return`<div class="depot-pill rank${rank}" style="cursor:default"><div class="dp-num dp-n${rank}">${rank}</div><div><div class="dp-code" style="font-size:11px">${multiTxt}</div><div class="dp-name">Multiple — contact inland team</div></div><span style="font-family:var(--fm);font-size:10px;color:var(--mu);margin-left:4px">${label}</span></div>`;
+    }
+    return`<div class="depot-pill rank${rank}" ${onclick} data-depot="${code}"><div class="dp-num dp-n${rank}">${rank}</div><div><div class="dp-code">${code}</div><div class="dp-name">${D[code]||''}</div></div>${isrHtml}<span style="font-family:var(--fm);font-size:10px;color:var(--mu);margin-left:4px">${label}</span></div>`;
+  }
+  let dp='';
+  if(opts.p1) dp+=makePill(opts.p1,1,false,false,'');
+  if(opts.p2txt) dp+=makePill('',2,false,true,opts.p2txt);
+  else if(opts.p2) dp+=makePill(opts.p2,2,false,false,'');
+  if(opts.p3) dp+=makePill(opts.p3,3,rule.isrOnP3,false,'');
+  document.getElementById('depotRack').innerHTML=dp;
+  hlRow(rule.id);
+
+  // Auto-select preferred depot
+  document.getElementById('bargeTitle').style.display='none';
+  document.getElementById('bargeList').innerHTML='';
+  selectDepot(opts.p1);
+}
+
+// ── Depot click handler ────────────────────────────────
+function selectDepot(code){
+  if(!code)return;
+  const termVal=document.getElementById('terminalSelect').value;
+  const loadDate=document.getElementById('loadDate').value;
+  if(!termVal||!loadDate)return;
+  const[termCode,yotStr,port]=termVal.split('|');
+  const yot=parseInt(yotStr,10);
+  const loadingDate=parseDate(loadDate);
+
+  // Highlight selected pill
+  document.querySelectorAll('.depot-pill[data-depot]').forEach(p=>{
+    p.classList.toggle('selected', p.dataset.depot===code);
+  });
+
+  const name=D[code]||code;
+  const portLabel=port==='RTM'?'Rotterdam':'Antwerp';
+  const loadTimeStr=document.getElementById('loadTime').value||'08:00';
+  const result=getNextDeps(code,port,loadingDate,loadTimeStr);
+  const {deps,skipped}=result||{deps:[],skipped:[]};
+  const bargeTitle=document.getElementById('bargeTitle');
+  const bargeList=document.getElementById('bargeList');
+
+  bargeTitle.style.display='block';
+  bargeTitle.textContent=`${name} — Departures & Vessel Booking Window`;
+
+  if(!deps||!deps.length){
+    // Build a "skipped" notice if any next-day options were ruled out
+    let skipNotice='';
+    if(skipped.length){
+      const s=skipped[0];
+      const modIcon=s.mod==='Rail'?'🚂':'🛳';
+      skipNotice=`<div class="bc-skipped">${modIcon} <strong>${s.mod} on ${fmtS(s.etd)}</strong> was skipped — loading after 12:00 does not allow enough time to make this departure.</div>`;
+    }
+    bargeList.innerHTML=skipNotice+`<div class="no-sched">No further departures available for <strong>${code}</strong> → ${portLabel} within the planning window. Contact the inland coordination team.</div>`;
+  } else {
+    // Mark the first result as recommended
+    deps[0].isRecommended=true;
+    // Build skipped notice
+    let skipNotice='';
+    if(skipped.length){
+      const s=skipped[0];
+      const modIcon=s.mod==='Rail'?'🚂':'🛳';
+      skipNotice=`<div class="bc-skipped">${modIcon} <strong>${s.mod} on ${fmtS(s.etd)}</strong> skipped — loading after 12:00 is too late. Next available option recommended below.</div>`;
+    }
+    bargeList.innerHTML=skipNotice+deps.map(d=>bargeCard(d,yot,termCode)).join('');
+  }
+  // Smooth scroll to schedule
+  setTimeout(()=>bargeTitle.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function clearResult(){
+  document.getElementById('resultPane').style.display='none';
+  document.getElementById('resultPane').classList.remove('show');
+  document.getElementById('emptyPane').style.display='block';
+  document.getElementById('zipInput').value='';
+  document.getElementById('terminalSelect').value='';
+  document.getElementById('loadDate').value='';
+  hlRow(null);
+}
+
+function ql(zip,size,type,date,time,term){
+  document.getElementById('zipInput').value=zip;
+  document.getElementById('sizeSelect').value=size;
+  document.getElementById('typeSelect').value=type;
+  document.getElementById('loadDate').value=date;
+  document.getElementById('loadTime').value=time;
+  document.getElementById('terminalSelect').value=term;
+  doLookup();
+}
+
+// ══ Ref table ═════════════════════════════════════════
+let refOpen=false;
+function toggleRef(){
+  refOpen=!refOpen;
+  document.getElementById('refWrap').classList.toggle('open',refOpen);
+  document.getElementById('refChev').classList.toggle('open',refOpen);
+}
+function hlRow(id){
+  document.querySelectorAll('#refTable tbody tr').forEach(tr=>tr.classList.toggle('hl',tr.dataset.id===id));
+}
+function buildRefTable(){
+  const tbl=document.getElementById('refTable');
+  const th=s=>`<th>${s}</th>`;
+  const head=`<thead><tr>${['ZIP Range','Size/Type','RTM P1','RTM P2','RTM P3','ANR P1','ANR P2'].map(th).join('')}</tr></thead>`;
+  const nil=`<span class="tdn">—</span>`;
+  const rows=RULES.map(r=>{
+    const ss=r.sizes.join("/'")+"' "+r.types.join('/');
+    const p2=r.rtm.p2txt?`<span class="tdp2" style="font-size:10px">${r.rtm.p2txt}</span>`:(r.rtm.p2?`<span class="tdp2">${r.rtm.p2}</span>`:nil);
+    const p3=r.rtm.p3?`<span class="tdp3">${r.rtm.p3}</span>${r.isrOnP3?'<span class="isrbdg">ISR</span>':''}`:nil;
+    const a2=r.anr&&r.anr.p2?`<span class="tdp2">${r.anr.p2}</span>`:nil;
+    return`<tr data-id="${r.id}"><td><span class="tdz">${r.zipLabel.split('(')[0].trim()}</span></td><td><span class="tds">${ss}</span></td><td><span class="tdp1">${r.rtm.p1}</span></td><td>${p2}</td><td>${p3}</td><td><span class="tdp1">${r.anr&&r.anr.p1?r.anr.p1:r.rtm.p1}</span></td><td>${a2}</td></tr>`;
+  }).join('');
+  tbl.innerHTML=head+`<tbody>${rows}</tbody>`;
+  document.getElementById('ruleCount').textContent=`${RULES.length} rules`;
+}
+
+// ══ Init ══════════════════════════════════════════════
+document.getElementById('todayTag').textContent=
+  new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+buildRefTable();
+</script>
+</body>
+</html>
