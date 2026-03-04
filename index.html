@@ -820,14 +820,15 @@ const D={
   'DEDUI01':'Hutchison Ports Duisburg',
   'DEDUI03':'DIT Depot Duisburg',
   'DEDUIRR':'RRT Depot Duisburg',
+  'DEDTM01':'CTD Dortmund',
   'DEBNX01':'Bonn AZS',
   'DETREAZ':'Trier AZS',
   'DEAJHRA':'Rheinhafen Andernach',
   'DEG4TG':'Gustavsburg Contargo',
   'DEMNZ01':'Mainz Frankenbach',
   'DEGRH01':'Germersheim DPW',
-  'DEMUN01':'Muenchen',
-  'DENUE02':'Nuernberg CDN',
+  'DEMUN01':'Muenchen (Rail Hub)',
+  'DENUE02':'Nuernberg CDN (Rail Hub)',
 };
 const TERM_NAMES={
   'NLROTTM':'APM Terminals Rotterdam',
@@ -838,121 +839,76 @@ const TERM_NAMES={
   'BEANT913':'PSA Noordzee Terminal',
 };
 const RULES=[
-  // 32000–34999 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
-  {id:'r01',zipLabel:'32000–34999',ranges:[[32000,34999]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
-   anr:{p1:'DEDUI01'},isrOnP3:true},
-
-  // 35000–36999 — 40 dry/high
-  {id:'r02a',zipLabel:"35000–36999 (40')",ranges:[[35000,36999]],
-   sizes:['40'],types:['dry','high'],
-   rtm:{p1:'DEMNZ01',p2:'DEG4TG'},
-   anr:{p1:'DEMNZ01',p2:'DEG4TG'},isrOnP3:false},
-
-  // 35000–36999 — 20 dry
-  {id:'r02b',zipLabel:"35000–36999 (20')",ranges:[[35000,36999]],
-   sizes:['20'],types:['dry'],
-   rtm:{p1:'DEAJHRA',p2:'DEBNX01'},
-   anr:{p1:'DEAJHRA',p2:'DEBNX01'},isrOnP3:false},
-
-  // 37000–52999 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
-  {id:'r03',zipLabel:'37000–52999',ranges:[[37000,52999]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
-   anr:{p1:'DEDUI01'},isrOnP3:true},
-
-  // 53000–53999 — 20/40 dry/high
-  {id:'r04',zipLabel:'53000–53999',ranges:[[53000,53999]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DEDUI01',p2:'DEBNX01'},
-   anr:{p1:'DEBNX01'},isrOnP3:false},
-
-  // 54000–54999 — 20/40 dry/high
-  {id:'r05',zipLabel:'54000–54999',ranges:[[54000,54999]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DETREAZ',p2:'DEAJHRA',p3:'DEBNX01'},
-   anr:{p1:'DETREAZ'},isrOnP3:false},
-
-  // 55000–55999 — 40 dry/high/href
-  {id:'r06a',zipLabel:"55000–55999 (40')",ranges:[[55000,55999]],
-   sizes:['40'],types:['dry','high','href'],
-   rtm:{p1:'DEMNZ01'},
-   anr:{p1:'DEMNZ01'},isrOnP3:false},
-
-  // 55000–55999 — 20 dry
-  {id:'r06b',zipLabel:"55000–55999 (20')",ranges:[[55000,55999]],
-   sizes:['20'],types:['dry'],
-   rtm:{p1:'DEG4TG',p2:'DEAJHRA'},
-   anr:{p1:'DEG4TG',p2:'DEAJHRA'},isrOnP3:false},
-
-  // 56000–56999 — 40 dry/high
-  {id:'r07a',zipLabel:"56000–56999 (40')",ranges:[[56000,56999]],
-   sizes:['40'],types:['dry','high'],
-   rtm:{p1:'DEBNX01'},
-   anr:{p1:'DEBNX01'},isrOnP3:false},
-
-  // 56000–56999 — 20 dry
-  {id:'r07b',zipLabel:"56000–56999 (20')",ranges:[[56000,56999]],
-   sizes:['20'],types:['dry'],
-   rtm:{p1:'DEAJHRA',p2:'DEBNX01'},
-   anr:{p1:'DEAJHRA',p2:'DEBNX01'},isrOnP3:false},
-
-  // 57000–60000 — 20/40 dry/high — ISR on 3rd (DEDUIRR)
-  {id:'r08',zipLabel:'57000–60000',ranges:[[57000,60000]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},
-   anr:{p1:'DEDUI01'},isrOnP3:true},
-
-  // 60001–65999 — 40 dry/high/href
-  {id:'r09a',zipLabel:"60001–65999 (40')",ranges:[[60001,65999]],
-   sizes:['40'],types:['dry','high','href'],
-   rtm:{p1:'DEMNZ01'},
-   anr:{p1:'DEMNZ01'},isrOnP3:false},
-
-  // 60001–65999 — 20 dry
-  {id:'r09b',zipLabel:"60001–65999 (20')",ranges:[[60001,65999]],
-   sizes:['20'],types:['dry'],
-   rtm:{p1:'DEG4TG',p2:'DEAJHRA'},
-   anr:{p1:'DEG4TG',p2:'DEAJHRA'},isrOnP3:false},
-
-  // 66000–79999 — 20/40 dry/high/href
-  {id:'r10',zipLabel:'66000–79999',ranges:[[66000,79999]],
+  // 31000–31999 — RTM: CTD Dortmund, ANR: not serviced via barge
+  {id:'r01',zipLabel:'31000–31999',ranges:[[31000,31999]],
    sizes:['20','40'],types:['dry','high','href'],
-   rtm:{p1:'DEGRH01'},
-   anr:{p1:'DEGRH01'},isrOnP3:false},
+   rtm:{p1:'DEDTM01'},anr:{p1:null},isrOnP3:false},
 
-  // 80000–87999 — 20/40 dry/high
-  {id:'r11',zipLabel:'80000–87999',ranges:[[80000,87999]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DEMUN01'},
-   anr:{p1:'DEMUN01'},isrOnP3:false},
-
-  // 88000–89999 — 20/40 dry/high/href
-  {id:'r12',zipLabel:'88000–89999',ranges:[[88000,89999]],
+  // 32000–34999 — both: Duisburg (ISR for DEDUIRR p3)
+  {id:'r02',zipLabel:'32000–34999',ranges:[[32000,34999]],
    sizes:['20','40'],types:['dry','high','href'],
-   rtm:{p1:'DEGRH01'},
-   anr:{p1:'DEGRH01'},isrOnP3:false},
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},anr:{p1:'DEDUI01'},isrOnP3:true},
 
-  // 90000–99000 — 20/40 dry/high
-  {id:'r13',zipLabel:'90000–99000',ranges:[[90000,99000]],
-   sizes:['20','40'],types:['dry','high'],
-   rtm:{p1:'DENUE02'},
-   anr:{p1:'DENUE02'},isrOnP3:false},
+  // 35000–36999 — both: Mainz Frankenbach
+  {id:'r03',zipLabel:'35000–36999',ranges:[[35000,36999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEMNZ01'},anr:{p1:'DEMNZ01'},isrOnP3:false},
+
+  // 37000–39999 — RTM: CTD Dortmund, ANR: Duisburg
+  {id:'r04',zipLabel:'37000–39999',ranges:[[37000,39999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEDTM01'},anr:{p1:'DEDUI01'},isrOnP3:false},
+
+  // 40000–47999 — both: Duisburg (ISR for DEDUIRR p3)
+  {id:'r05',zipLabel:'40000–47999',ranges:[[40000,47999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},anr:{p1:'DEDUI01'},isrOnP3:true},
+
+  // 48000–53999 — both: Duisburg
+  {id:'r06',zipLabel:'48000–53999',ranges:[[48000,53999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEDUI01'},anr:{p1:'DEDUI01'},isrOnP3:false},
+
+  // 54000–54999 — both: Trier AZS
+  {id:'r07',zipLabel:'54000–54999',ranges:[[54000,54999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DETREAZ'},anr:{p1:'DETREAZ'},isrOnP3:false},
+
+  // 55000–55999 — both: Mainz Frankenbach
+  {id:'r08',zipLabel:'55000–55999',ranges:[[55000,55999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEMNZ01'},anr:{p1:'DEMNZ01'},isrOnP3:false},
+
+  // 56000–56999 — both: Bonn AZS
+  {id:'r09',zipLabel:'56000–56999',ranges:[[56000,56999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEBNX01'},anr:{p1:'DEBNX01'},isrOnP3:false},
+
+  // 57000–59999 — both: Duisburg (ISR for DEDUIRR p3)
+  {id:'r10',zipLabel:'57000–59999',ranges:[[57000,59999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEDUI01',p2:'DEDUI03',p3:'DEDUIRR'},anr:{p1:'DEDUI01'},isrOnP3:true},
+
+  // 60000–65999 — both: Gustavsburg Contargo (62xxx does not exist as German PLZ)
+  {id:'r11',zipLabel:'60000–65999',ranges:[[60000,65999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEG4TG'},anr:{p1:'DEG4TG'},isrOnP3:false},
+
+  // 66000–89999 — both: Germersheim DPW
+  {id:'r12',zipLabel:'66000–89999',ranges:[[66000,89999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEGRH01'},anr:{p1:'DEGRH01'},isrOnP3:false},
+
+  // 90000–97999 — both: Mainz Frankenbach (barge); rail via Nuernberg
+  {id:'r13',zipLabel:'90000–97999',ranges:[[90000,97999]],
+   sizes:['20','40'],types:['dry','high','href'],
+   rtm:{p1:'DEMNZ01'},anr:{p1:'DEMNZ01'},isrOnP3:false},
 ];
 function findRule(zip,size,type){
   const z=parseInt(zip,10);
-  // First pass: exact type match
   for(const r of RULES){
     if(!r.ranges.some(([lo,hi])=>z>=lo&&z<=hi))continue;
-    if(!r.sizes.includes(size))continue;
-    if(r.types.includes(type))return r;
-  }
-  // Second pass: fallback to 'dry' rule for same zip+size (handles href→dry fallback)
-  for(const r of RULES){
-    if(!r.ranges.some(([lo,hi])=>z>=lo&&z<=hi))continue;
-    if(!r.sizes.includes(size))continue;
-    if(r.types.includes('dry'))return r;
+    return r; // all rules now cover all sizes/types
   }
   return null;
 }
@@ -1001,7 +957,13 @@ function doLookup(){
     hlRow(null);return;
   }
 
-  const opts=port==='RTM'?rule.rtm:rule.anr||rule.rtm;
+  const opts=port==='RTM'?rule.rtm:(rule.anr||rule.rtm);
+  if(opts.p1===null){
+    document.getElementById('depotRack').innerHTML=`<div class="no-sched-isr">🚢 This ZIP code area is not serviced via Antwerp by barge. Please select a Rotterdam terminal or contact the inland coordination team.</div>`;
+    document.getElementById('bargeTitle').style.display='none';
+    document.getElementById('bargeList').innerHTML='';
+    hlRow(rule.id);return;
+  }
 
   // Depot pills — clickable
   function makePill(code,rank,isrR,isMulti,multiTxt){
@@ -1082,7 +1044,7 @@ function selectDepot(code){
       const modIcon=s.mod==='Rail'?'🚂':'🛳';
       skipNotice=`<div class="bc-skipped">${modIcon} <strong>${s.mod} on ${fmtS(s.etd)}</strong> was skipped — loading after 12:00 does not allow enough time to make this departure.</div>`;
     }
-    const noSchedDepots=['DEMUN01','DENUE02','DETREAZ','DEDUI03'];
+    const noSchedDepots=['DEMUN01','DENUE02','DETREAZ','DEDUI03','DEDTM01'];
     const noSchedMsg=noSchedDepots.includes(code)
       ?`<div class="no-sched-isr">📋 Schedule not yet available for <strong>${D[code]||code}</strong>.<br>Please raise an ISR for loading possibilities.</div>`
       :`<div class="no-sched">No further departures available for <strong>${code}</strong> → ${portLabel} within the planning window. Contact the inland coordination team.</div>`;
